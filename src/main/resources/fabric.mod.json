@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "musicplayer",
+	"version": "${version}",
+	"name": "Music Player",
+	"description": "This mod adds in a music player block to better utilize music discs.",
+	"authors": [
+		"Hoover"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/musicplayer/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.hoover.musicplayer.MusicPlayer"
+		],
+		"client": [
+			"net.hoover.musicplayer.MusicPlayerClient"
+		],
+		"fabric-datagen": [
+			"net.hoover.musicplayer.MusicPlayerDataGenerator"
+		]
+	},
+	"mixins": [
+		"musicplayer.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.7",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
