@@ -1,0 +1,10 @@
+{
+  "music_disc.test": {
+    "sounds": [
+      {
+        "name": "musicplayer:music_disc.test",
+        "stream": true
+      }
+    ]
+  }
+}
