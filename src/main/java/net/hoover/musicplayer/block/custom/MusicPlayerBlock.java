@@ -20,8 +20,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class MusicPlayerBlock extends BlockWithEntity implements BlockEntityProvider {
-    private static final VoxelShape SHAPE = Block.createCuboidShape(0, 0, 0, 16, 12, 16);
-
     public MusicPlayerBlock(Settings settings) {
         super(settings);
     }
@@ -29,11 +27,6 @@ public class MusicPlayerBlock extends BlockWithEntity implements BlockEntityProv
     @Override
     protected MapCodec<? extends BlockWithEntity> getCodec() {
         return null;
-    }
-
-    @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return SHAPE;
     }
 
     @Override
