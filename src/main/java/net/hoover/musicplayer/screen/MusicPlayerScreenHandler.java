@@ -39,7 +39,7 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         addProperties(arrayPropertyDelegate);
     }
 
-    public boolean isCrafting() {
+    public boolean isPlaying() {
         return propertyDelegate.get(0) > 0;
     }
 

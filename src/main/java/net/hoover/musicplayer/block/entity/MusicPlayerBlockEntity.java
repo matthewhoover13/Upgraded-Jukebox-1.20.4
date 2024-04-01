@@ -33,8 +33,8 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private boolean isPlaying = false;
 
     protected final PropertyDelegate propertyDelegate;
-    private int progress = 0;
-    private int maxProgress = 72;
+    private int songProgress = 0;
+    private int songLength = 0;
 
     public MusicPlayerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MUSIC_PLAYER_BLOCK_ENTITY, pos, state);
@@ -42,8 +42,8 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
             @Override
             public int get(int index) {
                 return switch (index) {
-                    case 0 -> MusicPlayerBlockEntity.this.progress;
-                    case 1 -> MusicPlayerBlockEntity.this.maxProgress;
+                    case 0 -> MusicPlayerBlockEntity.this.songProgress;
+                    case 1 -> MusicPlayerBlockEntity.this.songLength;
                     default -> 0;
                 };
             }
@@ -51,8 +51,8 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
             @Override
             public void set(int index, int value) {
                 switch (index) {
-                    case 0 -> MusicPlayerBlockEntity.this.progress = value;
-                    case 1 -> MusicPlayerBlockEntity.this.maxProgress = value;
+                    case 0 -> MusicPlayerBlockEntity.this.songProgress = value;
+                    case 1 -> MusicPlayerBlockEntity.this.songLength = value;
 
                 }
             }
@@ -83,14 +83,14 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     protected void writeNbt(NbtCompound nbt) {
         super.writeNbt(nbt);
         Inventories.writeNbt(nbt, inventory);
-        nbt.putInt("music_player.progress", progress);
+        nbt.putInt("music_player.progress", songProgress);
     }
 
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
         Inventories.readNbt(nbt, inventory);
-        progress = nbt.getInt("music_player.progress");
+        songProgress = nbt.getInt("music_player.progress");
     }
 
     @Nullable
@@ -105,47 +105,47 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         }
 
         if (isOutputSlotEmptyOrReceivable()) {
-            if (this.hasRecipe()) {
+            if (this.isPlayable()) {
                 if (!isPlaying) {
                     startPlaying();
                 }
-                this.increaseCraftProgress();
+                this.increaseSongProgress();
                 markDirty(world, pos, state);
-                if (hasCraftingFinished()) {
-                    this.craftItem();
-                    this.resetProgress();
+                if (hasSongFinished()) {
+                    this.finishSong();
+                    this.resetSong();
                 }
             }
             else {
-                this.resetProgress();
+                this.resetSong();
             }
         }
         else {
-            this.resetProgress();
+            this.resetSong();
             markDirty(world, pos, state);
         }
     }
 
-    private void resetProgress() {
-        this.progress = 0;
+    private void resetSong() {
+        this.songProgress = 0;
         stopPlaying();
     }
 
-    private void craftItem() {
+    private void finishSong() {
         ItemStack result = new ItemStack(getStack(INPUT_SLOT).getItem());
         this.removeStack(INPUT_SLOT, 1);
         this.setStack(OUTPUT_SLOT, new ItemStack(result.getItem(), getStack(OUTPUT_SLOT).getCount() + result.getCount()));
     }
 
-    private boolean hasCraftingFinished() {
-        return progress >= maxProgress;
+    private boolean hasSongFinished() {
+        return songProgress >= songLength;
     }
 
-    private void increaseCraftProgress() {
-        progress++;
+    private void increaseSongProgress() {
+        songProgress++;
     }
 
-    private boolean hasRecipe() {
+    private boolean isPlayable() {
         ItemStack result = new ItemStack(ModItems.TEST_MUSIC_DISC);
         boolean hasInput = getStack(INPUT_SLOT).isIn(ItemTags.MUSIC_DISCS);
 
@@ -167,7 +167,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     public void startPlaying() {
         //this.recordStartTick = this.tickCount;
         this.isPlaying = true;
-        this.maxProgress = getSongLength() + 20;
+        this.songLength = getSongLength() + 20;
         this.world.updateNeighborsAlways(this.getPos(), this.getCachedState().getBlock());
         this.world.syncWorldEvent(null, WorldEvents.JUKEBOX_STARTS_PLAYING, this.getPos(), Item.getRawId(this.getStack(INPUT_SLOT).getItem()));
         this.markDirty();
