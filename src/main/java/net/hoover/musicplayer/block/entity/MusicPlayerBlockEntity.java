@@ -1,7 +1,6 @@
 package net.hoover.musicplayer.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.hoover.musicplayer.item.ModItems;
 import net.hoover.musicplayer.screen.MusicPlayerScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -26,10 +25,9 @@ import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory {
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(2, ItemStack.EMPTY);
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
     private static final int INPUT_SLOT = 0;
-    private static final int OUTPUT_SLOT = 1;
     private boolean isPlaying = false;
 
     protected final PropertyDelegate propertyDelegate;
@@ -126,6 +124,15 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         }
     }
 
+    private int getOutputSlot() {
+        for (int i = 0; i < inventory.size(); ++i) {
+            if (inventory.get(i) == ItemStack.EMPTY) {
+                return i;
+            }
+        }
+        throw new ArrayIndexOutOfBoundsException();
+    }
+
     private void resetSong() {
         this.songProgress = 0;
         stopPlaying();
@@ -134,7 +141,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private void finishSong() {
         ItemStack result = new ItemStack(getStack(INPUT_SLOT).getItem());
         this.removeStack(INPUT_SLOT, 1);
-        this.setStack(OUTPUT_SLOT, new ItemStack(result.getItem(), getStack(OUTPUT_SLOT).getCount() + result.getCount()));
+        this.setStack(getOutputSlot(), new ItemStack(result.getItem(), getStack(getOutputSlot()).getCount() + result.getCount()));
     }
 
     private boolean hasSongFinished() {
@@ -146,22 +153,22 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     }
 
     private boolean isPlayable() {
-        ItemStack result = new ItemStack(ModItems.TEST_MUSIC_DISC);
+        ItemStack result = new ItemStack(getStack(INPUT_SLOT).getItem(), getStack(INPUT_SLOT).getCount());
         boolean hasInput = getStack(INPUT_SLOT).isIn(ItemTags.MUSIC_DISCS);
 
         return hasInput && canInsertAmountIntoOutputSlot(result) && canInsertItemIntoOutputSlot(result.getItem());
     }
 
     private boolean canInsertItemIntoOutputSlot(Item item) {
-        return this.getStack(OUTPUT_SLOT).getItem() == item || this.getStack(OUTPUT_SLOT).isEmpty();
+        return this.getStack(getOutputSlot()).getItem() == item || this.getStack(getOutputSlot()).isEmpty();
     }
 
     private boolean canInsertAmountIntoOutputSlot(ItemStack result) {
-        return this.getStack(OUTPUT_SLOT).getCount() + result.getCount() <= getStack(OUTPUT_SLOT).getMaxCount();
+        return this.getStack(getOutputSlot()).getCount() + result.getCount() <= getStack(getOutputSlot()).getMaxCount();
     }
 
     private boolean isOutputSlotEmptyOrReceivable() {
-        return this.getStack(OUTPUT_SLOT).isEmpty() || this.getStack(OUTPUT_SLOT).getCount() < this.getStack(OUTPUT_SLOT).getMaxCount();
+        return this.getStack(getOutputSlot()).isEmpty() || this.getStack(getOutputSlot()).getCount() < this.getStack(getOutputSlot()).getMaxCount();
     }
 
     public void startPlaying() {

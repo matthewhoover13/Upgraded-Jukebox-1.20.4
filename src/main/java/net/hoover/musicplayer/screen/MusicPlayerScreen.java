@@ -10,17 +10,19 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/music_player_gui.png");
+    private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/new_music_player_gui.png");
 
     public MusicPlayerScreen(MusicPlayerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
+        this.init();
     }
 
     @Override
     protected void init() {
         super.init();
         titleY = 1000;
-        playerInventoryTitleY = 1000;
+        this.backgroundHeight = 114 + 6 * 18;
+        this.playerInventoryTitleY = this.backgroundHeight - 94;
     }
 
     @Override
@@ -30,8 +32,9 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         RenderSystem.setShaderTexture(0, TEXTURE);
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
-        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
-        renderProgressArrow(context, x, y);
+        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, 6 * 18 + 17);
+        context.drawTexture(TEXTURE, x, y + 6 * 18 + 17, 0, 126, backgroundWidth, 96);
+        //renderProgressArrow(context, x, y);
     }
 
     private void renderProgressArrow(DrawContext context, int x, int y) {

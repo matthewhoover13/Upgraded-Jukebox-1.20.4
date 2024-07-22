@@ -1,5 +1,6 @@
 package net.hoover.musicplayer.screen;
 
+import net.hoover.musicplayer.MusicPlayer;
 import net.hoover.musicplayer.block.entity.MusicPlayerBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,6 +12,7 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.screen.slot.SlotActionType;
 
 public class MusicPlayerScreenHandler extends ScreenHandler {
     private final Inventory inventory;
@@ -24,17 +26,22 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
 
     public MusicPlayerScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
         super(ModScreenHandlers.MUSIC_PLAYER_SCREEN_HANDLER, syncId);
-        checkSize((Inventory)blockEntity, 2);
+        checkSize((Inventory)blockEntity, 54);
         this.inventory = ((Inventory)blockEntity);
         inventory.onOpen(playerInventory.player);
         this.propertyDelegate = arrayPropertyDelegate;
         this.blockEntity = ((MusicPlayerBlockEntity) blockEntity);
 
-        this.addSlot(new Slot(inventory, 0, 80, 11));
-        this.addSlot(new Slot(inventory, 1, 80, 59));
-
-        addPlayerInventory(playerInventory);
-        addPlayerHotbar(playerInventory);
+        int rows = 6;
+        int j;
+        int k;
+        for (j = 0; j < rows; ++j) {
+            for (k = 0; k < 9; ++k) {
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
+            }
+        }
+        addPlayerInventory(playerInventory, rows);
+        addPlayerHotbar(playerInventory, rows);
 
         addProperties(arrayPropertyDelegate);
     }
@@ -51,28 +58,48 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
     }
 
     @Override
-    public ItemStack quickMove(PlayerEntity player, int invSlot) {
-        ItemStack newStack = ItemStack.EMPTY;
-        Slot slot = this.slots.get(invSlot);
-        if (slot != null && slot.hasStack()) {
-            ItemStack originalStack = slot.getStack();
-            newStack = originalStack.copy();
-            if (invSlot < this.inventory.size()) {
-                if (!this.insertItem(originalStack, this.inventory.size(), this.slots.size(), true)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.insertItem(originalStack, 0, this.inventory.size(), false)) {
-                return ItemStack.EMPTY;
-            }
+    public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
+        super.onSlotClick(slotIndex, button, actionType, player);
+        shiftItemsToEmptySlots();
+    }
 
-            if (originalStack.isEmpty()) {
-                slot.setStack(ItemStack.EMPTY);
-            } else {
-                slot.markDirty();
+
+
+    private void shiftItemsToEmptySlots() {
+        MusicPlayer.LOGGER.info("SHIFTING ITEMS");
+        for (int i = 0; i < inventory.size(); ++i) {
+            Slot slot2 = (Slot) this.slots.get(i);
+            if (slot2 != null && slot2.hasStack()) {
+                ItemStack itemStack2 = slot2.getStack();
+                if (!this.insertItem(itemStack2, 0, inventory.size(), false)) {
+                    continue;
+                }
+                if (itemStack2.isEmpty()) {
+                    slot2.setStack(ItemStack.EMPTY);
+                } else {
+                    slot2.markDirty();
+                }
             }
         }
+    }
 
-        return newStack;
+    @Override
+    public ItemStack quickMove(PlayerEntity player, int slot) {
+        ItemStack itemStack = ItemStack.EMPTY;
+        Slot slot2 = (Slot)this.slots.get(slot);
+        if (slot2 != null && slot2.hasStack()) {
+            ItemStack itemStack2 = slot2.getStack();
+            itemStack = itemStack2.copy();
+            if (slot < inventory.size() ? !this.insertItem(itemStack2, inventory.size(), this.slots.size(), true) : !this.insertItem(itemStack2, 0, inventory.size(), false)) {
+                return ItemStack.EMPTY;
+            }
+            if (itemStack2.isEmpty()) {
+                slot2.setStack(ItemStack.EMPTY);
+            } else {
+                slot2.markDirty();
+            }
+        }
+        return itemStack;
     }
 
     @Override
@@ -80,17 +107,19 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         return this.inventory.canPlayerUse(player);
     }
 
-    private void addPlayerInventory(PlayerInventory playerInventory) {
-        for (int i = 0; i < 3; ++i) {
-            for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
+    private void addPlayerInventory(PlayerInventory playerInventory, int rows) {
+        int i = (rows - 4) * 18;
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0; k < 9; ++k) {
+                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 103 + j * 18 + i));
             }
         }
     }
 
-    private void addPlayerHotbar(PlayerInventory playerInventory) {
-        for (int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+    private void addPlayerHotbar(PlayerInventory playerInventory, int rows) {
+        int i = (rows - 4) * 18;
+        for (int j = 0; j < 9; ++j) {
+            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 161 + i));
         }
     }
 }
