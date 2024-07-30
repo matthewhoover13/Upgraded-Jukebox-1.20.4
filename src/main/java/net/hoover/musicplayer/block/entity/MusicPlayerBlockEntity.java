@@ -24,6 +24,8 @@ import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScreenHandlerFactory, ImplementedInventory {
     private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(54, ItemStack.EMPTY);
 
@@ -122,26 +124,101 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
             this.resetSong();
             markDirty(world, pos, state);
         }
+        shiftItemsToEmptySlots();
     }
 
     private int getOutputSlot() {
-        for (int i = 0; i < inventory.size(); ++i) {
-            if (inventory.get(i) == ItemStack.EMPTY) {
+        for (int i = inventory.size() / 2; i < inventory.size(); ++i) {
+            if (getStack(i).isEmpty()) {
                 return i;
             }
         }
-        throw new ArrayIndexOutOfBoundsException();
+        return inventory.size() - 1;
     }
 
-    private void resetSong() {
+    public void resetSong() {
         this.songProgress = 0;
         stopPlaying();
     }
 
     private void finishSong() {
-        ItemStack result = new ItemStack(getStack(INPUT_SLOT).getItem());
-        this.removeStack(INPUT_SLOT, 1);
-        this.setStack(getOutputSlot(), new ItemStack(result.getItem(), getStack(getOutputSlot()).getCount() + result.getCount()));
+        this.setStack(getOutputSlot(), this.removeStack(INPUT_SLOT));
+        shiftItemsToEmptySlots();
+        if (isPlaylistFinished()) {
+            autoPlayDiscs(true);
+        }
+    }
+
+    private void shiftItemsToEmptySlots() {
+        int firstEmptySlot = -1;
+        int i = 0;
+        while (i < inventory.size() / 2) {
+            if (firstEmptySlot > -1) {
+                if (getStack(i) != ItemStack.EMPTY) {
+                    this.setStack(firstEmptySlot, this.removeStack(i));
+                    i = firstEmptySlot;
+                    firstEmptySlot = -1;
+                }
+            } else {
+                if (getStack(i) == ItemStack.EMPTY) {
+                    firstEmptySlot = i;
+                }
+            }
+            ++i;
+        }
+        firstEmptySlot = -1;
+        i = inventory.size() / 2;
+        while (i < inventory.size()) {
+            if (firstEmptySlot >= inventory.size() / 2) {
+                if (getStack(i) != ItemStack.EMPTY) {
+                    this.setStack(firstEmptySlot, this.removeStack(i));
+                    i = firstEmptySlot;
+                    firstEmptySlot = -1;
+                }
+            } else {
+                if (getStack(i) == ItemStack.EMPTY) {
+                    firstEmptySlot = i;
+                }
+            }
+            ++i;
+        }
+    }
+
+    private boolean isPlaylistFinished() {
+        return getStack(INPUT_SLOT).isEmpty() && !getStack(INPUT_SLOT + (inventory.size() / 2)).isEmpty();
+    }
+
+    private void autoPlayDiscs(boolean shuffle) {
+        if (shuffle) {
+            while (hasOutput()) {
+                int i = inventory.size() / 2;
+                int n = getNumItemsInOutput();
+                if (n > 1) {
+                    Random random = new Random();
+                    i = random.nextInt(getNumItemsInOutput() + inventory.size() / 2);
+                }
+                this.setStack(inventory.size() / 2 - 1, this.removeStack(i));
+                shiftItemsToEmptySlots();
+            }
+        } else {
+            for (int i = inventory.size() / 2; i < inventory.size(); ++i) {
+                this.setStack(i - inventory.size() / 2, this.removeStack(i));
+            }
+        }
+    }
+
+    private boolean hasOutput() {
+        return !getStack(inventory.size() / 2).isEmpty();
+    }
+
+    private int getNumItemsInOutput() {
+        int count = 0;
+        for (int i = inventory.size() / 2; i < inventory.size(); ++i) {
+            if (!getStack(i).isEmpty()) {
+                ++count;
+            }
+        }
+        return count;
     }
 
     private boolean hasSongFinished() {

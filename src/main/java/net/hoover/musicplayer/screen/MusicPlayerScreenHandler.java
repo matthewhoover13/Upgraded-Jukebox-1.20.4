@@ -1,6 +1,5 @@
 package net.hoover.musicplayer.screen;
 
-import net.hoover.musicplayer.MusicPlayer;
 import net.hoover.musicplayer.block.entity.MusicPlayerBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -59,27 +58,8 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
 
     @Override
     public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-        super.onSlotClick(slotIndex, button, actionType, player);
-        shiftItemsToEmptySlots();
-    }
-
-
-
-    private void shiftItemsToEmptySlots() {
-        MusicPlayer.LOGGER.info("SHIFTING ITEMS");
-        for (int i = 0; i < inventory.size(); ++i) {
-            Slot slot2 = (Slot) this.slots.get(i);
-            if (slot2 != null && slot2.hasStack()) {
-                ItemStack itemStack2 = slot2.getStack();
-                if (!this.insertItem(itemStack2, 0, inventory.size(), false)) {
-                    continue;
-                }
-                if (itemStack2.isEmpty()) {
-                    slot2.setStack(ItemStack.EMPTY);
-                } else {
-                    slot2.markDirty();
-                }
-            }
+        if (!((!getCursorStack().isEmpty() || actionType == SlotActionType.SWAP) && slotIndex >= inventory.size() / 2 && slotIndex < inventory.size())) {
+            super.onSlotClick(slotIndex, button, actionType, player);
         }
     }
 
@@ -90,7 +70,7 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         if (slot2 != null && slot2.hasStack()) {
             ItemStack itemStack2 = slot2.getStack();
             itemStack = itemStack2.copy();
-            if (slot < inventory.size() ? !this.insertItem(itemStack2, inventory.size(), this.slots.size(), true) : !this.insertItem(itemStack2, 0, inventory.size(), false)) {
+            if (slot < inventory.size() ? !this.insertItem(itemStack2, inventory.size(), this.slots.size(), true) : !this.insertItem(itemStack2, 0, inventory.size() / 2, false)) {
                 return ItemStack.EMPTY;
             }
             if (itemStack2.isEmpty()) {
@@ -105,6 +85,11 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
     @Override
     public boolean canUse(PlayerEntity player) {
         return this.inventory.canPlayerUse(player);
+    }
+
+    @Override
+    public boolean canInsertIntoSlot(Slot slot) {
+        return slot.id < inventory.size() / 2;
     }
 
     private void addPlayerInventory(PlayerInventory playerInventory, int rows) {
