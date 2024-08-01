@@ -1,14 +1,21 @@
 package net.hoover.musicplayer.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.hoover.musicplayer.MusicPlayer;
+import net.hoover.musicplayer.networking.ModMessages;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/new_music_player_gui.png");
 
@@ -34,6 +41,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, 6 * 18 + 17);
         context.drawTexture(TEXTURE, x, y + 6 * 18 + 17, 0, 126, backgroundWidth, 96);
+        this.addDrawableChild(ButtonWidget.builder(Text.of("Skip"), button -> ClientPlayNetworking.send(ModMessages.SKIP_SONG_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()))).dimensions(x, y, 40, 20).build());
         //renderProgressArrow(context, x, y);
     }
 

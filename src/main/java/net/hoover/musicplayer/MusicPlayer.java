@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.hoover.musicplayer.block.ModBlocks;
 import net.hoover.musicplayer.block.entity.ModBlockEntities;
 import net.hoover.musicplayer.item.ModItems;
+import net.hoover.musicplayer.networking.ModMessages;
 import net.hoover.musicplayer.screen.ModScreenHandlers;
 import net.hoover.musicplayer.sound.ModSounds;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ public class MusicPlayer implements ModInitializer {
 		ModBlocks.registerModBlocks();
 		ModBlockEntities.registerBlockEntities();
 		ModItems.registerModItems();
+		ModMessages.registerC2SPackets();
 		ModScreenHandlers.registerScreenHandlers();
 		ModSounds.registerSounds();
 	}

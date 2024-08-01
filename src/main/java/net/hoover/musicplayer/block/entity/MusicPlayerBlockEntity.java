@@ -127,6 +127,11 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         shiftItemsToEmptySlots();
     }
 
+    public void skipCurrentSong() {
+        this.finishSong();
+        this.resetSong();
+    }
+
     private int getOutputSlot() {
         for (int i = inventory.size() / 2; i < inventory.size(); ++i) {
             if (getStack(i).isEmpty()) {
