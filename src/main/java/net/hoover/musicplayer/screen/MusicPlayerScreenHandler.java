@@ -20,7 +20,7 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
 
     public MusicPlayerScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
         this(syncId, inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
-                new ArrayPropertyDelegate(2));
+                new ArrayPropertyDelegate(3));
     }
 
     public MusicPlayerScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
@@ -54,6 +54,10 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         int maxProgress = this.propertyDelegate.get(1);
         int progressArrowSize = 26;
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
+    }
+
+    public boolean toShuffle() {
+        return this.propertyDelegate.get(2) > 0;
     }
 
     @Override
