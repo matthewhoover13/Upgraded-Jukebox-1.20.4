@@ -10,6 +10,7 @@ import net.hoover.musicplayer.networking.ModMessages;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
@@ -41,7 +42,8 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, 6 * 18 + 17);
         context.drawTexture(TEXTURE, x, y + 6 * 18 + 17, 0, 126, backgroundWidth, 96);
-        this.addDrawableChild(ButtonWidget.builder(Text.of("Skip"), button -> ClientPlayNetworking.send(ModMessages.SKIP_SONG_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()))).dimensions(x, y, 40, 20).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("Skip"), button -> ClientPlayNetworking.send(ModMessages.SKIP_SONG_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()))).dimensions(0, 0, 40, 20).build());
+        addDrawableChild(CheckboxWidget.builder(Text.of("Shuffle"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 0).checked(handler.toShuffle()).build());
         //renderProgressArrow(context, x, y);
     }
 

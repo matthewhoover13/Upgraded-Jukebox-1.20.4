@@ -1,6 +1,7 @@
 package net.hoover.musicplayer.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.hoover.musicplayer.MusicPlayer;
 import net.hoover.musicplayer.screen.MusicPlayerScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -31,6 +32,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
     private static final int INPUT_SLOT = 0;
     private boolean isPlaying = false;
+    private boolean toShuffle = true;
 
     protected final PropertyDelegate propertyDelegate;
     private int songProgress = 0;
@@ -44,6 +46,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 return switch (index) {
                     case 0 -> MusicPlayerBlockEntity.this.songProgress;
                     case 1 -> MusicPlayerBlockEntity.this.songLength;
+                    case 2 -> MusicPlayerBlockEntity.this.toShuffle ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -53,13 +56,13 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 switch (index) {
                     case 0 -> MusicPlayerBlockEntity.this.songProgress = value;
                     case 1 -> MusicPlayerBlockEntity.this.songLength = value;
-
+                    case 2 -> MusicPlayerBlockEntity.this.toShuffle = value > 0;
                 }
             }
 
             @Override
             public int size() {
-                return 2;
+                return 3;
             }
         };
     }
@@ -128,8 +131,15 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     }
 
     public void skipCurrentSong() {
-        this.finishSong();
-        this.resetSong();
+        if (songProgress >= 5) {
+            this.finishSong();
+            this.resetSong();
+        }
+    }
+
+    public void setShuffle(boolean toShuffle) {
+        this.toShuffle = toShuffle;
+        MusicPlayer.LOGGER.info("To Shuffle: " + this.toShuffle);
     }
 
     private int getOutputSlot() {
@@ -150,7 +160,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         this.setStack(getOutputSlot(), this.removeStack(INPUT_SLOT));
         shiftItemsToEmptySlots();
         if (isPlaylistFinished()) {
-            autoPlayDiscs(true);
+            autoPlayDiscs(toShuffle);
         }
     }
 
