@@ -1,7 +1,6 @@
 package net.hoover.musicplayer.block.entity;
 
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
-import net.hoover.musicplayer.MusicPlayer;
 import net.hoover.musicplayer.screen.MusicPlayerScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -33,6 +32,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private static final int INPUT_SLOT = 0;
     private boolean isPlaying = false;
     private boolean toShuffle = true;
+    private boolean toAutoplay = true;
 
     protected final PropertyDelegate propertyDelegate;
     private int songProgress = 0;
@@ -47,6 +47,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                     case 0 -> MusicPlayerBlockEntity.this.songProgress;
                     case 1 -> MusicPlayerBlockEntity.this.songLength;
                     case 2 -> MusicPlayerBlockEntity.this.toShuffle ? 1 : 0;
+                    case 3 -> MusicPlayerBlockEntity.this.toAutoplay ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -57,12 +58,13 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                     case 0 -> MusicPlayerBlockEntity.this.songProgress = value;
                     case 1 -> MusicPlayerBlockEntity.this.songLength = value;
                     case 2 -> MusicPlayerBlockEntity.this.toShuffle = value > 0;
+                    case 3 -> MusicPlayerBlockEntity.this.toAutoplay = value > 0;
                 }
             }
 
             @Override
             public int size() {
-                return 3;
+                return 4;
             }
         };
     }
@@ -128,6 +130,9 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
             markDirty(world, pos, state);
         }
         shiftItemsToEmptySlots();
+        if (toAutoplay && isPlaylistFinished()) {
+            autoPlayDiscs(toShuffle);
+        }
     }
 
     public void skipCurrentSong() {
@@ -139,7 +144,10 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
     public void setShuffle(boolean toShuffle) {
         this.toShuffle = toShuffle;
-        MusicPlayer.LOGGER.info("To Shuffle: " + this.toShuffle);
+    }
+
+    public void setAutoplay(boolean toAutoplay) {
+        this.toAutoplay = toAutoplay;
     }
 
     private int getOutputSlot() {
@@ -159,7 +167,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private void finishSong() {
         this.setStack(getOutputSlot(), this.removeStack(INPUT_SLOT));
         shiftItemsToEmptySlots();
-        if (isPlaylistFinished()) {
+        if (toAutoplay && isPlaylistFinished()) {
             autoPlayDiscs(toShuffle);
         }
     }
