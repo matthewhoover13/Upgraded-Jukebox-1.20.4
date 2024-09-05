@@ -45,6 +45,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         addDrawableChild(ButtonWidget.builder(Text.of("Skip"), button -> ClientPlayNetworking.send(ModMessages.SKIP_SONG_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()))).dimensions(0, 0, 40, 20).build());
         addDrawableChild(CheckboxWidget.builder(Text.of("Shuffle"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 0).checked(handler.toShuffle()).build());
         addDrawableChild(CheckboxWidget.builder(Text.of("Autoplay"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_AUTOPLAY_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 30).checked(handler.toAutoplay()).build());
+        addDrawableChild(CheckboxWidget.builder(Text.of("Pause"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 60).checked(handler.toPause()).build());
         //renderProgressArrow(context, x, y);
     }
 

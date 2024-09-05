@@ -1,6 +1,10 @@
 package net.hoover.musicplayer.block.entity;
 
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.hoover.musicplayer.networking.ModMessages;
 import net.hoover.musicplayer.screen.MusicPlayerScreenHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -16,6 +20,8 @@ import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +39,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private boolean isPlaying = false;
     private boolean toShuffle = true;
     private boolean toAutoplay = true;
+    private boolean paused = false;
 
     protected final PropertyDelegate propertyDelegate;
     private int songProgress = 0;
@@ -48,6 +55,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                     case 1 -> MusicPlayerBlockEntity.this.songLength;
                     case 2 -> MusicPlayerBlockEntity.this.toShuffle ? 1 : 0;
                     case 3 -> MusicPlayerBlockEntity.this.toAutoplay ? 1 : 0;
+                    case 4 -> MusicPlayerBlockEntity.this.paused ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -59,12 +67,13 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                     case 1 -> MusicPlayerBlockEntity.this.songLength = value;
                     case 2 -> MusicPlayerBlockEntity.this.toShuffle = value > 0;
                     case 3 -> MusicPlayerBlockEntity.this.toAutoplay = value > 0;
+                    case 4 -> MusicPlayerBlockEntity.this.paused = value > 0;
                 }
             }
 
             @Override
             public int size() {
-                return 4;
+                return 5;
             }
         };
     }
@@ -114,6 +123,9 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 if (!isPlaying) {
                     startPlaying();
                 }
+                if (!paused) {
+                    // MOVE this.increaseSongProgress() to HERE
+                }
                 this.increaseSongProgress();
                 markDirty(world, pos, state);
                 if (hasSongFinished()) {
@@ -148,6 +160,18 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
     public void setAutoplay(boolean toAutoplay) {
         this.toAutoplay = toAutoplay;
+    }
+
+    public void setPaused(boolean toPause) {
+        this.paused = toPause;
+        if (paused) {
+            // PAUSE
+            for (ServerPlayerEntity player : PlayerLookup.world((ServerWorld) world)) {
+                ServerPlayNetworking.send(player, ModMessages.RECEIVE_PAUSE_PACKET_ID, PacketByteBufs.create().writeIdentifier(((MusicDiscItem)getStack(INPUT_SLOT).getItem()).getSound().getId()).writeEnumConstant(SoundCategory.RECORDS).writeBlockPos(pos));
+            }
+        } else {
+            // UNPAUSE
+        }
     }
 
     private int getOutputSlot() {

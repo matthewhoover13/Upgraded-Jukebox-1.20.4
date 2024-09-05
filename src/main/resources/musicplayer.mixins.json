@@ -3,7 +3,11 @@
 	"package": "net.hoover.musicplayer.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"ModPositionedSoundInstancePauseInjector",
+		"ModSoundManagerPauseSound",
+		"ModSoundSystemPauseSound",
+		"ModSoundSystemResumeAll"
 	],
 	"injectors": {
 		"defaultRequire": 1
