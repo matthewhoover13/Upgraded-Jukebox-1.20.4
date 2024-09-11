@@ -8,7 +8,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.hoover.musicplayer.MusicPlayer;
 import net.hoover.musicplayer.client.gui.widget.ToggleableWidget;
 import net.hoover.musicplayer.networking.ModMessages;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -67,7 +66,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         //addDrawableChild(CheckboxWidget.builder(Text.of("Autoplay"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_AUTOPLAY_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 30).checked(handler.toAutoplay()).build());
         //addDrawableChild(CheckboxWidget.builder(Text.of("Pause"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 60).checked(handler.toPause()).build());
         //renderProgressArrow(context, x, y);
-        MusicPlayer.LOGGER.info("FPS: " + MinecraftClient.getInstance().getCurrentFps());
+        //MusicPlayer.LOGGER.info("FPS: " + MinecraftClient.getInstance().getCurrentFps());
     }
 
     private void renderProgressArrow(DrawContext context, int x, int y) {

@@ -45,6 +45,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     protected final PropertyDelegate propertyDelegate;
     private int songProgress = 0;
     private int songLength = 0;
+    private int skipCooldown = 0;
 
     public MusicPlayerBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.MUSIC_PLAYER_BLOCK_ENTITY, pos, state);
@@ -124,6 +125,9 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 if (!isPlaying && !paused) {
                     startPlaying();
                 }
+                if (skipCooldown <= 4) {
+                    ++skipCooldown;
+                }
                 if (!paused) {
                     this.increaseSongProgress();
                 }
@@ -147,9 +151,8 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         }
     }
 
-    // CURRENTLY DOES NOT SKIP IF PAUSED
     public void skipCurrentSong() {
-        if (songProgress >= 5) {
+        if (skipCooldown >= 4) {
             this.finishSong();
             this.resetSong();
         }
@@ -163,12 +166,13 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         this.toAutoplay = toAutoplay;
     }
 
-    // CANNOT PAUSE IF NOTHING TO PAUSE
     public void setPaused(boolean toPause) {
         this.paused = toPause;
-        Identifier packetId = paused ? ModMessages.RECEIVE_PAUSE_PACKET_ID : ModMessages.RECEIVE_RESUME_PACKET_ID;
-        for (ServerPlayerEntity player : PlayerLookup.world((ServerWorld) world)) {
-            ServerPlayNetworking.send(player, packetId, PacketByteBufs.create().writeIdentifier(((MusicDiscItem)getStack(INPUT_SLOT).getItem()).getSound().getId()).writeEnumConstant(SoundCategory.RECORDS).writeBlockPos(pos));
+        if (getStack(INPUT_SLOT).getItem() instanceof MusicDiscItem) {
+            Identifier packetId = paused ? ModMessages.RECEIVE_PAUSE_PACKET_ID : ModMessages.RECEIVE_RESUME_PACKET_ID;
+            for (ServerPlayerEntity player : PlayerLookup.world((ServerWorld) world)) {
+                ServerPlayNetworking.send(player, packetId, PacketByteBufs.create().writeIdentifier(((MusicDiscItem) getStack(INPUT_SLOT).getItem()).getSound().getId()).writeEnumConstant(SoundCategory.RECORDS).writeBlockPos(pos));
+            }
         }
     }
 
@@ -183,6 +187,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
     public void resetSong() {
         this.songProgress = 0;
+        this.skipCooldown = 0;
         stopPlaying();
     }
 
@@ -271,7 +276,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     }
 
     private void increaseSongProgress() {
-        songProgress++;
+        ++songProgress;
     }
 
     private boolean isPlayable() {
