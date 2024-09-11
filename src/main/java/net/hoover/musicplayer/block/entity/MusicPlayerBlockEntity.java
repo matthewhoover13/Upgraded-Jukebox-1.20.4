@@ -23,6 +23,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -120,13 +121,12 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
         if (isOutputSlotEmptyOrReceivable()) {
             if (this.isPlayable()) {
-                if (!isPlaying) {
+                if (!isPlaying && !paused) {
                     startPlaying();
                 }
                 if (!paused) {
-                    // MOVE this.increaseSongProgress() to HERE
+                    this.increaseSongProgress();
                 }
-                this.increaseSongProgress();
                 markDirty(world, pos, state);
                 if (hasSongFinished()) {
                     this.finishSong();
@@ -147,6 +147,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         }
     }
 
+    // CURRENTLY DOES NOT SKIP IF PAUSED
     public void skipCurrentSong() {
         if (songProgress >= 5) {
             this.finishSong();
@@ -162,15 +163,12 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
         this.toAutoplay = toAutoplay;
     }
 
+    // CANNOT PAUSE IF NOTHING TO PAUSE
     public void setPaused(boolean toPause) {
         this.paused = toPause;
-        if (paused) {
-            // PAUSE
-            for (ServerPlayerEntity player : PlayerLookup.world((ServerWorld) world)) {
-                ServerPlayNetworking.send(player, ModMessages.RECEIVE_PAUSE_PACKET_ID, PacketByteBufs.create().writeIdentifier(((MusicDiscItem)getStack(INPUT_SLOT).getItem()).getSound().getId()).writeEnumConstant(SoundCategory.RECORDS).writeBlockPos(pos));
-            }
-        } else {
-            // UNPAUSE
+        Identifier packetId = paused ? ModMessages.RECEIVE_PAUSE_PACKET_ID : ModMessages.RECEIVE_RESUME_PACKET_ID;
+        for (ServerPlayerEntity player : PlayerLookup.world((ServerWorld) world)) {
+            ServerPlayNetworking.send(player, packetId, PacketByteBufs.create().writeIdentifier(((MusicDiscItem)getStack(INPUT_SLOT).getItem()).getSound().getId()).writeEnumConstant(SoundCategory.RECORDS).writeBlockPos(pos));
         }
     }
 

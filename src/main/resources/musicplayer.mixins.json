@@ -6,8 +6,10 @@
 		"ExampleMixin",
 		"ModPositionedSoundInstancePauseInjector",
 		"ModSoundManagerPauseSound",
+		"ModSoundManagerResumeSound",
 		"ModSoundSystemPauseSound",
-		"ModSoundSystemResumeAll"
+		"ModSoundSystemResumeAll",
+		"ModSoundSystemResumeSound"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -2,7 +2,7 @@ package net.hoover.musicplayer.mixin;
 
 import com.google.common.collect.Multimap;
 import net.hoover.musicplayer.util.IPositionedSoundInstancePauseInjector;
-import net.hoover.musicplayer.util.ISoundSystemPauseSoundInjector;
+import net.hoover.musicplayer.util.ISoundSystemResumeSoundInjector;
 import net.minecraft.client.sound.*;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.Map;
 
 @Mixin(SoundSystem.class)
-public class ModSoundSystemPauseSound implements ISoundSystemPauseSoundInjector {
+public class ModSoundSystemResumeSound implements ISoundSystemResumeSoundInjector {
     @Shadow
     private Multimap<SoundCategory, SoundInstance> sounds;
 
@@ -22,7 +22,7 @@ public class ModSoundSystemPauseSound implements ISoundSystemPauseSoundInjector 
     private Map<SoundInstance, Channel.SourceManager> sources;
 
     @Override
-    public void pauseSound(@Nullable Identifier id, @Nullable SoundCategory category, @Nullable BlockPos pos) {
+    public void resumeSound(@Nullable Identifier id, @Nullable SoundCategory category, @Nullable BlockPos pos) {
         if (category != null) {
             for (SoundInstance soundInstance : sounds.get(category)) {
                 if (!(soundInstance instanceof PositionedSoundInstance)) {
@@ -32,7 +32,7 @@ public class ModSoundSystemPauseSound implements ISoundSystemPauseSoundInjector 
                     continue;
                 }
                 if (pos == null || ((int)soundInstance.getX() == pos.getX() && (int)soundInstance.getY() == pos.getY() && (int)soundInstance.getZ() == pos.getZ())) {
-                    pause(soundInstance);
+                    resume(soundInstance);
                 }
             }
         } else if (id != null) {
@@ -41,17 +41,17 @@ public class ModSoundSystemPauseSound implements ISoundSystemPauseSoundInjector 
                     continue;
                 }
                 if (pos == null || ((int)soundInstance.getX() == pos.getX() && (int)soundInstance.getY() == pos.getY() && (int)soundInstance.getZ() == pos.getZ())) {
-                    pause(soundInstance);
+                    resume(soundInstance);
                 }
             }
         }
     }
 
-    private void pause(SoundInstance soundInstance) {
+    private void resume(SoundInstance soundInstance) {
         Channel.SourceManager sourceManager;
         sourceManager = sources.get(soundInstance);
-        sourceManager.run(Source::pause);
+        sourceManager.run(Source::resume);
         IPositionedSoundInstancePauseInjector sound = (IPositionedSoundInstancePauseInjector) soundInstance;
-        sound.setPaused(true);
+        sound.setPaused(false);
     }
 }
