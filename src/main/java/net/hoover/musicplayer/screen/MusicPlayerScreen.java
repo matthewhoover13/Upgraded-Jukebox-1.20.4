@@ -11,6 +11,7 @@ import net.hoover.musicplayer.networking.ModMessages;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
@@ -30,6 +31,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     private ShuffleButtonWidget shuffleButton;
     private AutoplayButtonWidget autoplayButton;
     private PauseButtonWidget pauseButton;
+    private LoopButtonWidget loopButton;
 
     public MusicPlayerScreen(MusicPlayerScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);
@@ -50,6 +52,8 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
             this.addDrawableChild(autoplayButton);
             pauseButton = new PauseButtonWidget(50, 60);
             this.addDrawableChild(pauseButton);
+            loopButton = new LoopButtonWidget(50, 90);
+            this.addDrawableChild(loopButton);
         }
     }
 
@@ -62,9 +66,6 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         int y = (height - backgroundHeight) / 2;
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, 6 * 18 + 17);
         context.drawTexture(TEXTURE, x, y + 6 * 18 + 17, 0, 126, backgroundWidth, 96);
-        //addDrawableChild(CheckboxWidget.builder(Text.of("Shuffle"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 0).checked(handler.toShuffle()).build());
-        //addDrawableChild(CheckboxWidget.builder(Text.of("Autoplay"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_AUTOPLAY_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 30).checked(handler.toAutoplay()).build());
-        //addDrawableChild(CheckboxWidget.builder(Text.of("Pause"), textRenderer).callback((checkbox, checked) -> ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked))).pos(50, 60).checked(handler.toPause()).build());
         //renderProgressArrow(context, x, y);
         //MusicPlayer.LOGGER.info("FPS: " + MinecraftClient.getInstance().getCurrentFps());
     }
@@ -86,7 +87,11 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     private void updateWidgets() {
         shuffleButton.setChecked(handler.toShuffle());
         autoplayButton.setChecked(handler.toAutoplay());
-        pauseButton.setChecked(handler.toPause());
+        if (pauseButton.isChecked() != handler.toPause()) {
+            pauseButton.setChecked(handler.toPause());
+            pauseButton.setTooltip(Tooltip.of(Text.translatable(pauseButton.isChecked() ? "block.musicplayer.music_player_block.play_button" : "block.musicplayer.music_player_block.pause_button")));
+        }
+        loopButton.setChecked(handler.toLoop());
     }
 
     @Environment(value=EnvType.CLIENT)
@@ -129,9 +134,14 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     class ShuffleButtonWidget
     extends ToggleableWidget {
         ShuffleButtonWidget(int x, int y) {
-            super(x, y, Text.of("Shuffle"), textRenderer, handler.toShuffle(), (checkbox, checked) -> {
+            super(x, y, textRenderer, handler.toShuffle(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
             });
+            this.init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.shuffle_button")));
         }
     }
 
@@ -139,9 +149,14 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     class AutoplayButtonWidget
     extends ToggleableWidget {
         AutoplayButtonWidget(int x, int y) {
-            super(x, y, Text.of("Autoplay"), textRenderer, handler.toAutoplay(), (checkbox, checked) -> {
+            super(x, y, textRenderer, handler.toAutoplay(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_AUTOPLAY_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
             });
+            this.init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.autoplay_button")));
         }
     }
 
@@ -149,9 +164,29 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     class PauseButtonWidget
     extends ToggleableWidget {
         PauseButtonWidget(int x, int y) {
-            super(x, y, Text.of("Pause"), textRenderer, handler.toPause(), (checkbox, checked) -> {
+            super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
             });
+            this.init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.pause_button")));
+        }
+    }
+
+    @Environment(value=EnvType.CLIENT)
+    class LoopButtonWidget
+    extends ToggleableWidget {
+        LoopButtonWidget(int x, int y) {
+            super(x, y, textRenderer, handler.toLoop(), (checkbox, checked) -> {
+                ClientPlayNetworking.send(ModMessages.CHECK_LOOP_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
+            });
+            this.init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.loop_button")));
         }
     }
 }

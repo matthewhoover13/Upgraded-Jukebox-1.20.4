@@ -13,7 +13,6 @@ import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.option.SimpleOption;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class ToggleableWidget extends PressableWidget {
@@ -27,22 +26,22 @@ public class ToggleableWidget extends PressableWidget {
     private boolean checked;
     private final Callback callback;
 
-    public ToggleableWidget(int x, int y, Text message, TextRenderer textRenderer, boolean checked, Callback callback) {
-        super(x, y, ToggleableWidget.getSize(textRenderer) + 4 + textRenderer.getWidth(message), ToggleableWidget.getSize(textRenderer), message);
+    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback) {
+        super(x, y, ToggleableWidget.getSize(textRenderer), ToggleableWidget.getSize(textRenderer), Text.of(""));
         this.checked = checked;
         this.callback = callback;
     }
 
     public ToggleableWidget(int x, int y, Text message, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedHighlightedTexture, Identifier selectedTexture, Identifier highlightedTexture, Identifier texture) {
-        this(x, y, message, textRenderer, checked, callback);
+        this(x, y, textRenderer, checked, callback);
         this.selectedHighlightedTexture = selectedHighlightedTexture;
         this.selectedTexture = selectedTexture;
         this.highlightedTexture = highlightedTexture;
         this.texture = texture;
     }
 
-    public static Builder builder(Text text, TextRenderer textRenderer) {
-        return new Builder(text, textRenderer);
+    public static Builder builder(TextRenderer textRenderer) {
+        return new Builder(textRenderer);
     }
 
     private static int getSize(TextRenderer textRenderer) {
@@ -88,7 +87,7 @@ public class ToggleableWidget extends PressableWidget {
         int k = this.getY() + (this.height >> 1) - (textRenderer.fontHeight >> 1);
         context.drawGuiTexture(identifier, this.getX(), this.getY(), i, i);
         context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        context.drawTextWithShadow(textRenderer, this.getMessage(), j, k, 0xE0E0E0 | MathHelper.ceil(this.alpha * 255.0f) << 24);
+        //context.drawTextWithShadow(textRenderer, this.getMessage(), j, k, 0xE0E0E0 | MathHelper.ceil(this.alpha * 255.0f) << 24);
     }
 
     @Environment(value=EnvType.CLIENT)
@@ -100,7 +99,6 @@ public class ToggleableWidget extends PressableWidget {
 
     @Environment(value=EnvType.CLIENT)
     public static class Builder {
-        private final Text message;
         private final TextRenderer textRenderer;
         private int x = 0;
         private int y = 0;
@@ -111,8 +109,7 @@ public class ToggleableWidget extends PressableWidget {
         @Nullable
         private Tooltip tooltip = null;
 
-        Builder(Text message, TextRenderer textRenderer) {
-            this.message = message;
+        Builder(TextRenderer textRenderer) {
             this.textRenderer = textRenderer;
         }
 
@@ -149,7 +146,7 @@ public class ToggleableWidget extends PressableWidget {
                 this.option.setValue(checked);
                 this.callback.onValueChange(checkbox, checked);
             };
-            ToggleableWidget toggleableWidget = new ToggleableWidget(this.x, this.y, this.message, this.textRenderer, this.checked, callback);
+            ToggleableWidget toggleableWidget = new ToggleableWidget(this.x, this.y, this.textRenderer, this.checked, callback);
             toggleableWidget.setTooltip(this.tooltip);
             return toggleableWidget;
         }

@@ -20,7 +20,7 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
 
     public MusicPlayerScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
         this(syncId, inventory, inventory.player.getWorld().getBlockEntity(buf.readBlockPos()),
-                new ArrayPropertyDelegate(5));
+                new ArrayPropertyDelegate(6));
     }
 
     public MusicPlayerScreenHandler(int syncId, PlayerInventory playerInventory, BlockEntity blockEntity, PropertyDelegate arrayPropertyDelegate) {
@@ -65,6 +65,10 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
     }
     public boolean toPause() {
         return this.propertyDelegate.get(4) > 0;
+    }
+
+    public boolean toLoop() {
+        return this.propertyDelegate.get(5) > 0;
     }
 
     @Override

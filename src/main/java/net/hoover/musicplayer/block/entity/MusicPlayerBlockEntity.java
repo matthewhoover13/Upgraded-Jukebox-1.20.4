@@ -41,6 +41,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     private boolean toShuffle = true;
     private boolean toAutoplay = true;
     private boolean paused = false;
+    private boolean toLoop = false;
 
     protected final PropertyDelegate propertyDelegate;
     private int songProgress = 0;
@@ -58,6 +59,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                     case 2 -> MusicPlayerBlockEntity.this.toShuffle ? 1 : 0;
                     case 3 -> MusicPlayerBlockEntity.this.toAutoplay ? 1 : 0;
                     case 4 -> MusicPlayerBlockEntity.this.paused ? 1 : 0;
+                    case 5 -> MusicPlayerBlockEntity.this.toLoop ? 1 : 0;
                     default -> 0;
                 };
             }
@@ -75,7 +77,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
             @Override
             public int size() {
-                return 5;
+                return 6;
             }
         };
     }
@@ -133,7 +135,9 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 }
                 markDirty(world, pos, state);
                 if (hasSongFinished()) {
-                    this.finishSong();
+                    if (!this.toLoop) {
+                        this.finishSong();
+                    }
                     this.resetSong();
                 }
             }
@@ -175,6 +179,11 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
             }
         }
     }
+
+    public void setLoop(boolean toLoop) {
+        this.toLoop = toLoop;
+    }
+
 
     private int getOutputSlot() {
         for (int i = inventory.size() / 2; i < inventory.size(); ++i) {

@@ -1,5 +1,10 @@
 {
   "block.musicplayer.music_player_block": "Music Player",
+  "block.musicplayer.music_player_block.shuffle_button": "Shuffle",
+  "block.musicplayer.music_player_block.autoplay_button": "Autoplay",
+  "block.musicplayer.music_player_block.pause_button": "Pause",
+  "block.musicplayer.music_player_block.play_button": "Play",
+  "block.musicplayer.music_player_block.loop_button": "Loop",
 
   "key.category.music_player": "Music Player",
   "key.music_player.test": "Test Key"
