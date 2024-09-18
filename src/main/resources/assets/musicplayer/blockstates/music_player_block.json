@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "half=upper": {
+      "model": "minecraft:block/air"
+    },
+    "facing=east,half=lower": {
+      "model": "musicplayer:block/music_player_block",
+      "y": 90
+    },
+    "facing=north,half=lower": {
+      "model": "musicplayer:block/music_player_block"
+    },
+    "facing=south,half=lower": {
+      "model": "musicplayer:block/music_player_block",
+      "y": 180
+    },
+    "facing=west,half=lower": {
+      "model": "musicplayer:block/music_player_block",
+      "y": 270
+    }
+  }
+}
