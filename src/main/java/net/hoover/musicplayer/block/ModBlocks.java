@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 
 public class ModBlocks {
     public static final Block MUSIC_PLAYER_BLOCK = registerBlock("music_player_block",
-            new MusicPlayerBlock(FabricBlockSettings.copyOf(Blocks.JUKEBOX).nonOpaque()));
+            new MusicPlayerBlock(FabricBlockSettings.copyOf(Blocks.JUKEBOX).nonOpaque().luminance(state -> 7)));
 
     private static Block registerBlock(String name, Block block) {
         registerBlockItem(name, block);

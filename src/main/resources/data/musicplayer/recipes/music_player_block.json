@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "blocks",
+  "pattern": [
+    "PGP",
+    "CJC",
+    "PRP"
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "R": {
+      "item": "minecraft:redstone_torch"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "J": {
+      "item": "minecraft:jukebox"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    }
+  },
+  "result": {
+    "item": "musicplayer:music_player_block"
+  }
+}

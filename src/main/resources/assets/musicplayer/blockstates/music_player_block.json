@@ -1,7 +1,7 @@
 {
   "variants": {
     "half=upper": {
-      "model": "minecraft:block/air"
+      "model": "musicplayer:block/music_player_block_top"
     },
     "facing=east,half=lower": {
       "model": "musicplayer:block/music_player_block",
