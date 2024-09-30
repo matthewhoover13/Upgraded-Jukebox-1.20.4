@@ -19,10 +19,10 @@ public class ToggleableWidget extends PressableWidget {
     private static final int TEXT_COLOR = 0xE0E0E0;
     private static final int field_47105 = 4;
     private static final int field_47106 = 8;
-    private Identifier selectedHighlightedTexture = new Identifier("widget/checkbox_selected_highlighted");
-    private Identifier selectedTexture = new Identifier("widget/checkbox_selected");
-    private Identifier highlightedTexture = new Identifier("widget/checkbox_highlighted");
-    private Identifier texture = new Identifier("widget/checkbox");
+    protected Identifier selectedHighlightedTexture = new Identifier("widget/checkbox_selected_highlighted");
+    protected Identifier selectedTexture = new Identifier("widget/checkbox_selected");
+    protected Identifier highlightedTexture = new Identifier("widget/checkbox_highlighted");
+    protected Identifier texture = new Identifier("widget/checkbox");
     private boolean checked;
     private final Callback callback;
 

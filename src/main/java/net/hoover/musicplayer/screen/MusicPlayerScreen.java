@@ -21,7 +21,7 @@ import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
-    private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/new_music_player_gui.png");
+    private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/jukebox_gui.png");
     static final Identifier BUTTON_DISABLED_TEXTURE = new Identifier("container/beacon/button_disabled");
     static final Identifier BUTTON_SELECTED_TEXTURE = new Identifier("container/beacon/button_selected");
     static final Identifier BUTTON_HIGHLIGHTED_TEXTURE = new Identifier("container/beacon/button_highlighted");
@@ -41,9 +41,9 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     @Override
     protected void init() {
         super.init();
-        titleY = 1000;
-        this.backgroundHeight = 114 + 6 * 18;
-        this.playerInventoryTitleY = this.backgroundHeight - 94;
+        this.titleY = 6;
+        this.backgroundHeight = 243;
+        this.playerInventoryTitleY = this.backgroundHeight - 89;
         this.addDrawableChild(new SkipButtonWidget(0, 0));
         if (this.textRenderer != null) {
             shuffleButton = new ShuffleButtonWidget(50, 0);
@@ -64,15 +64,13 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         RenderSystem.setShaderTexture(0, TEXTURE);
         int x = (width - backgroundWidth) / 2;
         int y = (height - backgroundHeight) / 2;
-        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, 6 * 18 + 17);
-        context.drawTexture(TEXTURE, x, y + 6 * 18 + 17, 0, 126, backgroundWidth, 96);
-        //renderProgressArrow(context, x, y);
-        //MusicPlayer.LOGGER.info("FPS: " + MinecraftClient.getInstance().getCurrentFps());
+        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
+        renderSongProgress(context, x, y);
     }
 
-    private void renderProgressArrow(DrawContext context, int x, int y) {
+    private void renderSongProgress(DrawContext context, int x, int y) {
         if (handler.isPlaying()) {
-            context.drawTexture(TEXTURE, x + 85, y + 30, 176, 0, 8, handler.getScaledProgress());
+            context.drawTexture(TEXTURE, x + 8, y + 92, 8, 247, handler.getScaledProgress(), 3);
         }
     }
 
@@ -102,6 +100,11 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
 
         protected SkipButtonWidget(int x, int y) {
             super(x, y, 22, 22, ScreenTexts.DONE);
+            init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.skip_button")));
         }
 
         @Override

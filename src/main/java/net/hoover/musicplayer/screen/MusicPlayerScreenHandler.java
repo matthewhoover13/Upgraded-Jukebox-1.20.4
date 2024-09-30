@@ -31,16 +31,10 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         this.propertyDelegate = arrayPropertyDelegate;
         this.blockEntity = ((MusicPlayerBlockEntity) blockEntity);
 
-        int rows = 6;
-        int j;
-        int k;
-        for (j = 0; j < rows; ++j) {
-            for (k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
-            }
-        }
-        addPlayerInventory(playerInventory, rows);
-        addPlayerHotbar(playerInventory, rows);
+        addInputSlots(inventory);
+        addOutputSlots(inventory);
+        addPlayerInventory(playerInventory);
+        addPlayerHotbar(playerInventory);
 
         addProperties(arrayPropertyDelegate);
     }
@@ -52,7 +46,7 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
     public int getScaledProgress() {
         int progress = this.propertyDelegate.get(0);
         int maxProgress = this.propertyDelegate.get(1);
-        int progressArrowSize = 26;
+        int progressArrowSize = 160;
         return maxProgress != 0 && progress != 0 ? progress * progressArrowSize / maxProgress : 0;
     }
 
@@ -107,19 +101,33 @@ public class MusicPlayerScreenHandler extends ScreenHandler {
         return slot.id < inventory.size() / 2;
     }
 
-    private void addPlayerInventory(PlayerInventory playerInventory, int rows) {
-        int i = (rows - 4) * 18;
+    private void addInputSlots(Inventory inventory) {
         for (int j = 0; j < 3; ++j) {
             for (int k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 103 + j * 18 + i));
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 17 + j * 17));
             }
         }
     }
 
-    private void addPlayerHotbar(PlayerInventory playerInventory, int rows) {
-        int i = (rows - 4) * 18;
+    private void addOutputSlots(Inventory inventory) {
+        for (int j = 3; j < 6; ++j) {
+            for (int k = 0; k < 9; ++k) {
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 50 + j * 17));
+            }
+        }
+    }
+
+    private void addPlayerInventory(PlayerInventory playerInventory) {
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0; k < 9; ++k) {
+                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 166 + j * 17));
+            }
+        }
+    }
+
+    private void addPlayerHotbar(PlayerInventory playerInventory) {
         for (int j = 0; j < 9; ++j) {
-            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 161 + i));
+            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 221));
         }
     }
 }
