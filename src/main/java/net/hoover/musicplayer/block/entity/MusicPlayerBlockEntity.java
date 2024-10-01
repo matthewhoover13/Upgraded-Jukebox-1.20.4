@@ -94,7 +94,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
 
     @Override
     public Text getDisplayName() {
-        return Text.literal("Music Player");
+        return Text.translatable("block.musicplayer.music_player_block");
     }
 
     @Override

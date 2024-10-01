@@ -22,11 +22,6 @@ import net.minecraft.util.Identifier;
 @Environment(EnvType.CLIENT)
 public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/jukebox_gui.png");
-    static final Identifier BUTTON_DISABLED_TEXTURE = new Identifier("container/beacon/button_disabled");
-    static final Identifier BUTTON_SELECTED_TEXTURE = new Identifier("container/beacon/button_selected");
-    static final Identifier BUTTON_HIGHLIGHTED_TEXTURE = new Identifier("container/beacon/button_highlighted");
-    static final Identifier BUTTON_TEXTURE = new Identifier("container/beacon/button");
-    static final Identifier CONFIRM_TEXTURE = new Identifier("container/beacon/confirm");
 
     private ShuffleButtonWidget shuffleButton;
     private AutoplayButtonWidget autoplayButton;
@@ -44,15 +39,17 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         this.titleY = 6;
         this.backgroundHeight = 243;
         this.playerInventoryTitleY = this.backgroundHeight - 89;
-        this.addDrawableChild(new SkipButtonWidget(0, 0));
+        int x = getStartingX() + 25;
+        int y = getStartingY() + 71;
+        this.addDrawableChild(new SkipButtonWidget(x + 36, y));
         if (this.textRenderer != null) {
-            shuffleButton = new ShuffleButtonWidget(50, 0);
+            shuffleButton = new ShuffleButtonWidget(x + 73, y);
             this.addDrawableChild(shuffleButton);
             autoplayButton = new AutoplayButtonWidget(50, 30);
             this.addDrawableChild(autoplayButton);
-            pauseButton = new PauseButtonWidget(50, 60);
+            pauseButton = new PauseButtonWidget(x, y);
             this.addDrawableChild(pauseButton);
-            loopButton = new LoopButtonWidget(50, 90);
+            loopButton = new LoopButtonWidget(x + 109, y);
             this.addDrawableChild(loopButton);
         }
     }
@@ -62,8 +59,8 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.setShaderTexture(0, TEXTURE);
-        int x = (width - backgroundWidth) / 2;
-        int y = (height - backgroundHeight) / 2;
+        int x = getStartingX();
+        int y = getStartingY();
         context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
         renderSongProgress(context, x, y);
     }
@@ -92,10 +89,20 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         loopButton.setChecked(handler.toLoop());
     }
 
+    private int getStartingX() {
+        return (width - backgroundWidth) / 2;
+    }
+
+    private int getStartingY() {
+        return (height - backgroundHeight) / 2;
+    }
+
     @Environment(value=EnvType.CLIENT)
     class SkipButtonWidget
     extends PressableWidget {
-        private final Identifier texture = CONFIRM_TEXTURE;
+
+        private static final Identifier SKIP_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/skip_button");
+        private static final Identifier SKIP_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/skip_button_pressed");
         private boolean disabled;
 
         protected SkipButtonWidget(int x, int y) {
@@ -109,9 +116,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
 
         @Override
         public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-            Identifier identifier = !this.active ? BUTTON_DISABLED_TEXTURE : (this.disabled ? BUTTON_SELECTED_TEXTURE : (this.isSelected() ? BUTTON_HIGHLIGHTED_TEXTURE : BUTTON_TEXTURE));
-            context.drawGuiTexture(identifier, this.getX(), this.getY(), this.width, this.height);
-            context.drawGuiTexture(this.texture, this.getX() + 2, this.getY() + 2, 18, 18);
+            context.drawGuiTexture(this.hovered ? SKIP_BUTTON_PRESSED_TEXTURE : SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
         }
 
         public boolean isDisabled() {
@@ -136,10 +141,13 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     @Environment(value=EnvType.CLIENT)
     class ShuffleButtonWidget
     extends ToggleableWidget {
+        private static final Identifier SHUFFLE_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/shuffle_button");
+        private static final Identifier SHUFFLE_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/shuffle_button_pressed");
+
         ShuffleButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toShuffle(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
-            });
+            }, SHUFFLE_BUTTON_PRESSED_TEXTURE, SHUFFLE_BUTTON_TEXTURE);
             this.init();
         }
 
@@ -166,10 +174,13 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     @Environment(value=EnvType.CLIENT)
     class PauseButtonWidget
     extends ToggleableWidget {
+        private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/play_button");
+        private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/pause_button");
+
         PauseButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
-            });
+            }, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_TEXTURE);
             this.init();
         }
 
@@ -181,10 +192,13 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     @Environment(value=EnvType.CLIENT)
     class LoopButtonWidget
     extends ToggleableWidget {
+        private static final Identifier LOOP_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/loop_button");
+        private static final Identifier LOOP_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/loop_button_pressed");
+
         LoopButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toLoop(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_LOOP_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
-            });
+            }, LOOP_BUTTON_PRESSED_TEXTURE, LOOP_BUTTON_TEXTURE);
             this.init();
         }
 

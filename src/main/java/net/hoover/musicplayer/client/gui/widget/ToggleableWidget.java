@@ -32,7 +32,11 @@ public class ToggleableWidget extends PressableWidget {
         this.callback = callback;
     }
 
-    public ToggleableWidget(int x, int y, Text message, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedHighlightedTexture, Identifier selectedTexture, Identifier highlightedTexture, Identifier texture) {
+    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedTexture, Identifier texture) {
+        this(x, y, textRenderer, checked, callback, selectedTexture, selectedTexture, texture, texture);
+    }
+
+    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedHighlightedTexture, Identifier selectedTexture, Identifier highlightedTexture, Identifier texture) {
         this(x, y, textRenderer, checked, callback);
         this.selectedHighlightedTexture = selectedHighlightedTexture;
         this.selectedTexture = selectedTexture;
@@ -87,7 +91,6 @@ public class ToggleableWidget extends PressableWidget {
         int k = this.getY() + (this.height >> 1) - (textRenderer.fontHeight >> 1);
         context.drawGuiTexture(identifier, this.getX(), this.getY(), i, i);
         context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        //context.drawTextWithShadow(textRenderer, this.getMessage(), j, k, 0xE0E0E0 | MathHelper.ceil(this.alpha * 255.0f) << 24);
     }
 
     @Environment(value=EnvType.CLIENT)

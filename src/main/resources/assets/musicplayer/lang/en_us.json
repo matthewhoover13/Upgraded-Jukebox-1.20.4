@@ -1,5 +1,5 @@
 {
-  "block.musicplayer.music_player_block": "Music Player",
+  "block.musicplayer.music_player_block": "Jukebox",
   "block.musicplayer.music_player_block.skip_button": "Skip",
   "block.musicplayer.music_player_block.shuffle_button": "Shuffle",
   "block.musicplayer.music_player_block.autoplay_button": "Autoplay",
