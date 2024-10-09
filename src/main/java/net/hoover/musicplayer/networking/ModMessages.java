@@ -9,7 +9,6 @@ import net.minecraft.util.Identifier;
 public class ModMessages {
     public static final Identifier SKIP_SONG_ID = new Identifier(MusicPlayer.MOD_ID, "skip_song");
     public static final Identifier CHECK_SHUFFLE_BOX_ID = new Identifier(MusicPlayer.MOD_ID, "check_shuffle_box");
-    public static final Identifier CHECK_AUTOPLAY_BOX_ID = new Identifier(MusicPlayer.MOD_ID, "check_autoplay_box");
     public static final Identifier CHECK_PAUSE_BOX_ID = new Identifier(MusicPlayer.MOD_ID, "check_pause_box");
     public static final Identifier CHECK_LOOP_BOX_ID = new Identifier(MusicPlayer.MOD_ID, "check_loop_box");
 
@@ -19,7 +18,6 @@ public class ModMessages {
     public static void registerC2SPackets() {
         ServerPlayNetworking.registerGlobalReceiver(SKIP_SONG_ID, SkipSongC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(CHECK_SHUFFLE_BOX_ID, CheckShuffleBoxC2SPacket::receive);
-        ServerPlayNetworking.registerGlobalReceiver(CHECK_AUTOPLAY_BOX_ID, CheckAutoplayBoxC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(CHECK_PAUSE_BOX_ID, CheckPauseBoxC2SPacket::receive);
         ServerPlayNetworking.registerGlobalReceiver(CHECK_LOOP_BOX_ID, CheckLoopBoxC2SPacket::receive);
     }
