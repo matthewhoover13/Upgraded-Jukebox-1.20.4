@@ -24,7 +24,6 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(MusicPlayer.MOD_ID, "textures/gui/jukebox_gui.png");
 
     private ShuffleButtonWidget shuffleButton;
-    private AutoplayButtonWidget autoplayButton;
     private PauseButtonWidget pauseButton;
     private LoopButtonWidget loopButton;
 
@@ -45,8 +44,6 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
         if (this.textRenderer != null) {
             shuffleButton = new ShuffleButtonWidget(x + 73, y);
             this.addDrawableChild(shuffleButton);
-            autoplayButton = new AutoplayButtonWidget(50, 30);
-            this.addDrawableChild(autoplayButton);
             pauseButton = new PauseButtonWidget(x, y);
             this.addDrawableChild(pauseButton);
             loopButton = new LoopButtonWidget(x + 109, y);
@@ -81,7 +78,6 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
 
     private void updateWidgets() {
         shuffleButton.setChecked(handler.toShuffle());
-        autoplayButton.setChecked(handler.toAutoplay());
         if (pauseButton.isChecked() != handler.toPause()) {
             pauseButton.setChecked(handler.toPause());
             pauseButton.setTooltip(Tooltip.of(Text.translatable(pauseButton.isChecked() ? "block.musicplayer.music_player_block.play_button" : "block.musicplayer.music_player_block.pause_button")));
@@ -153,21 +149,6 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
 
         private void init() {
             this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.shuffle_button")));
-        }
-    }
-
-    @Environment(value=EnvType.CLIENT)
-    class AutoplayButtonWidget
-    extends ToggleableWidget {
-        AutoplayButtonWidget(int x, int y) {
-            super(x, y, textRenderer, handler.toAutoplay(), (checkbox, checked) -> {
-                ClientPlayNetworking.send(ModMessages.CHECK_AUTOPLAY_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
-            });
-            this.init();
-        }
-
-        private void init() {
-            this.setTooltip(Tooltip.of(Text.translatable("block.musicplayer.music_player_block.autoplay_button")));
         }
     }
 
