@@ -19,9 +19,9 @@ public class ToggleableWidget extends PressableWidget {
     private static final int TEXT_COLOR = 0xE0E0E0;
     private static final int field_47105 = 4;
     private static final int field_47106 = 8;
-    protected Identifier selectedHighlightedTexture = new Identifier("widget/checkbox_selected_highlighted");
-    protected Identifier selectedTexture = new Identifier("widget/checkbox_selected");
-    protected Identifier highlightedTexture = new Identifier("widget/checkbox_highlighted");
+    protected Identifier checkedClickedTexture = new Identifier("widget/checkbox_checked_clicked");
+    protected Identifier checkedTexture = new Identifier("widget/checkbox_checked");
+    protected Identifier clickedTexture = new Identifier("widget/checkbox_clicked");
     protected Identifier texture = new Identifier("widget/checkbox");
     private boolean checked;
     private final Callback callback;
@@ -32,15 +32,15 @@ public class ToggleableWidget extends PressableWidget {
         this.callback = callback;
     }
 
-    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedTexture, Identifier texture) {
-        this(x, y, textRenderer, checked, callback, selectedTexture, selectedTexture, texture, texture);
+    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier checkedTexture, Identifier texture) {
+        this(x, y, textRenderer, checked, callback, checkedTexture, checkedTexture, texture, texture);
     }
 
-    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier selectedHighlightedTexture, Identifier selectedTexture, Identifier highlightedTexture, Identifier texture) {
+    public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback, Identifier checkedClickedTexture, Identifier checkedTexture, Identifier clickedTexture, Identifier texture) {
         this(x, y, textRenderer, checked, callback);
-        this.selectedHighlightedTexture = selectedHighlightedTexture;
-        this.selectedTexture = selectedTexture;
-        this.highlightedTexture = highlightedTexture;
+        this.checkedClickedTexture = checkedClickedTexture;
+        this.checkedTexture = checkedTexture;
+        this.clickedTexture = clickedTexture;
         this.texture = texture;
     }
 
@@ -85,7 +85,7 @@ public class ToggleableWidget extends PressableWidget {
         TextRenderer textRenderer = minecraftClient.textRenderer;
         context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         RenderSystem.enableBlend();
-        Identifier identifier = this.checked ? (this.isFocused() ? selectedHighlightedTexture : selectedTexture) : (this.isFocused() ? highlightedTexture : texture);
+        Identifier identifier = this.checked ? checkedTexture : texture;
         int i = getSize(textRenderer);
         int j = this.getX() + i + 4;
         int k = this.getY() + (this.height >> 1) - (textRenderer.fontHeight >> 1);

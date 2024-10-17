@@ -96,10 +96,8 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     @Environment(value=EnvType.CLIENT)
     class SkipButtonWidget
     extends PressableWidget {
-
         private static final Identifier SKIP_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/skip_button");
         private static final Identifier SKIP_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/skip_button_pressed");
-        private boolean disabled;
 
         protected SkipButtonWidget(int x, int y) {
             super(x, y, 22, 22, ScreenTexts.DONE);
@@ -112,15 +110,7 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
 
         @Override
         public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-            context.drawGuiTexture(this.hovered ? SKIP_BUTTON_PRESSED_TEXTURE : SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
-        }
-
-        public boolean isDisabled() {
-            return this.disabled;
-        }
-
-        public void setDisabled(boolean disabled) {
-            this.disabled = disabled;
+            context.drawGuiTexture(SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
         }
 
         @Override
@@ -156,12 +146,14 @@ public class MusicPlayerScreen extends HandledScreen<MusicPlayerScreenHandler> {
     class PauseButtonWidget
     extends ToggleableWidget {
         private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/play_button");
+        private static final Identifier PLAY_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/play_button_pressed");
         private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/pause_button");
+        private static final Identifier PAUSE_BUTTON_PRESSED_TEXTURE = new Identifier(MusicPlayer.MOD_ID, "container/music_player_block/pause_button_pressed");
 
         PauseButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
                 ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
-            }, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_TEXTURE);
+            }, PLAY_BUTTON_PRESSED_TEXTURE, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_PRESSED_TEXTURE, PAUSE_BUTTON_TEXTURE);
             this.init();
         }
 

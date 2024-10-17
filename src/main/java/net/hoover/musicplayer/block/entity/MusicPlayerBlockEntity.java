@@ -125,7 +125,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
                 if (!isPlaying && !paused) {
                     startPlaying();
                 }
-                if (skipCooldown <= 4) {
+                if (skipCooldown <= 1) {
                     ++skipCooldown;
                 }
                 if (!paused) {
@@ -154,7 +154,7 @@ public class MusicPlayerBlockEntity extends BlockEntity implements ExtendedScree
     }
 
     public void skipCurrentSong() {
-        if (skipCooldown >= 4) {
+        if (skipCooldown >= 1) {
             this.finishSong();
             this.resetSong();
         }
