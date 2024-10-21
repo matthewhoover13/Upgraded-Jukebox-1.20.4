@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "half=upper": {
+      "model": "upgradedjukebox:block/upgraded_jukebox_top"
+    },
+    "facing=east,half=lower": {
+      "model": "upgradedjukebox:block/upgraded_jukebox",
+      "y": 90
+    },
+    "facing=north,half=lower": {
+      "model": "upgradedjukebox:block/upgraded_jukebox"
+    },
+    "facing=south,half=lower": {
+      "model": "upgradedjukebox:block/upgraded_jukebox",
+      "y": 180
+    },
+    "facing=west,half=lower": {
+      "model": "upgradedjukebox:block/upgraded_jukebox",
+      "y": 270
+    }
+  }
+}

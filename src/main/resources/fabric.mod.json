@@ -1,32 +1,33 @@
 {
 	"schemaVersion": 1,
-	"id": "musicplayer",
+	"id": "upgradedjukebox",
 	"version": "${version}",
-	"name": "Music Player",
-	"description": "This mod adds in a music player block to better utilize music discs.",
+	"name": "Upgraded Jukebox",
+	"description": "This mod adds in an upgrade to the jukebox block to better utilize music discs.",
 	"authors": [
-		"Hoover"
+		"Matthew Hoover",
+		"Gillian Mousseau"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/musicplayer/icon.png",
+	"icon": "assets/upgradedjukebox/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.hoover.musicplayer.MusicPlayer"
+			"net.hoover.upgradedjukebox.UpgradedJukebox"
 		],
 		"client": [
-			"net.hoover.musicplayer.MusicPlayerClient"
+			"net.hoover.upgradedjukebox.UpgradedJukeboxClient"
 		],
 		"fabric-datagen": [
-			"net.hoover.musicplayer.MusicPlayerDataGenerator"
+			"net.hoover.upgradedjukebox.UpgradedJukeboxDataGenerator"
 		]
 	},
 	"mixins": [
-		"musicplayer.mixins.json"
+		"upgradedjukebox.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.15.7",

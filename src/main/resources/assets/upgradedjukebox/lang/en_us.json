@@ -1,0 +1,9 @@
+{
+  "block.upgradedjukebox.upgraded_jukebox": "Upgraded Jukebox",
+  "block.upgradedjukebox.upgraded_jukebox.skip_button": "Skip",
+  "block.upgradedjukebox.upgraded_jukebox.shuffle_button": "Shuffle",
+  "block.upgradedjukebox.upgraded_jukebox.autoplay_button": "Autoplay",
+  "block.upgradedjukebox.upgraded_jukebox.pause_button": "Pause",
+  "block.upgradedjukebox.upgraded_jukebox.play_button": "Play",
+  "block.upgradedjukebox.upgraded_jukebox.loop_button": "Loop"
+}
