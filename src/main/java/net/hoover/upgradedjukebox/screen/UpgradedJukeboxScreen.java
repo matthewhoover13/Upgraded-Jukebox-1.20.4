@@ -23,6 +23,7 @@ import net.minecraft.util.Identifier;
 public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/jukebox_gui.png");
 
+    private SkipButtonWidget skipButtonWidget;
     private ShuffleButtonWidget shuffleButton;
     private PauseButtonWidget pauseButton;
     private LoopButtonWidget loopButton;
@@ -40,7 +41,8 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
         this.playerInventoryTitleY = this.backgroundHeight - 89;
         int x = getStartingX() + 25;
         int y = getStartingY() + 71;
-        this.addDrawableChild(new SkipButtonWidget(x + 36, y));
+        skipButtonWidget = new SkipButtonWidget(x + 36, y);
+        this.addDrawableChild(skipButtonWidget);
         if (this.textRenderer != null) {
             shuffleButton = new ShuffleButtonWidget(x + 73, y);
             this.addDrawableChild(shuffleButton);
@@ -92,11 +94,22 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
         return (height - backgroundHeight) / 2;
     }
 
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        skipButtonWidget.mouseReleased(mouseX, mouseY, button);
+        shuffleButton.mouseReleased(mouseX, mouseY, button);
+        pauseButton.mouseReleased(mouseX, mouseY, button);
+        loopButton.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
     @Environment(value=EnvType.CLIENT)
     class SkipButtonWidget
     extends PressableWidget {
         private static final Identifier SKIP_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/skip_button");
         private static final Identifier SKIP_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/skip_button_pressed");
+
+        private boolean clicked;
 
         protected SkipButtonWidget(int x, int y) {
             super(x, y, 22, 22, ScreenTexts.DONE);
@@ -109,12 +122,26 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
 
         @Override
         public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-            context.drawGuiTexture(SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
+            context.drawGuiTexture(clicked ? SKIP_BUTTON_PRESSED_TEXTURE : SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
         }
 
         @Override
         protected void appendClickableNarrations(NarrationMessageBuilder builder) {
             this.appendDefaultNarrations(builder);
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (hovered) {
+                clicked = true;
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            clicked = false;
+            return super.mouseReleased(mouseX, mouseY, button);
         }
 
         @Override

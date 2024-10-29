@@ -24,6 +24,7 @@ public class ToggleableWidget extends PressableWidget {
     protected Identifier clickedTexture = new Identifier("widget/checkbox_clicked");
     protected Identifier texture = new Identifier("widget/checkbox");
     private boolean checked;
+    private boolean clicked;
     private final Callback callback;
 
     public ToggleableWidget(int x, int y, TextRenderer textRenderer, boolean checked, Callback callback) {
@@ -42,6 +43,20 @@ public class ToggleableWidget extends PressableWidget {
         this.checkedTexture = checkedTexture;
         this.clickedTexture = clickedTexture;
         this.texture = texture;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (hovered) {
+            clicked = true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        clicked = false;
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     public static Builder builder(TextRenderer textRenderer) {
@@ -85,7 +100,7 @@ public class ToggleableWidget extends PressableWidget {
         TextRenderer textRenderer = minecraftClient.textRenderer;
         context.setShaderColor(1.0f, 1.0f, 1.0f, this.alpha);
         RenderSystem.enableBlend();
-        Identifier identifier = this.checked ? checkedTexture : texture;
+        Identifier identifier = this.checked ? (this.clicked ? checkedClickedTexture : checkedTexture) : (this.clicked ? clickedTexture : texture);
         int i = getSize(textRenderer);
         int j = this.getX() + i + 4;
         int k = this.getY() + (this.height >> 1) - (textRenderer.fontHeight >> 1);
