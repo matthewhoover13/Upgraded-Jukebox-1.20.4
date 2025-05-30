@@ -1,6 +1,5 @@
 package net.hoover.upgradedjukebox.block.custom;
 
-import com.mojang.serialization.MapCodec;
 import net.hoover.upgradedjukebox.block.entity.ModBlockEntities;
 import net.hoover.upgradedjukebox.block.entity.UpgradedJukeboxBlockEntity;
 import net.minecraft.block.*;
@@ -33,11 +32,6 @@ public class UpgradedJukeboxBlock extends BlockWithEntity implements BlockEntity
     public UpgradedJukeboxBlock(Settings settings) {
         super(settings);
         setDefaultState(getDefaultState().with(Properties.HORIZONTAL_FACING, Direction.NORTH).with(Properties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return null;
     }
 
     @Override
@@ -117,7 +111,7 @@ public class UpgradedJukeboxBlock extends BlockWithEntity implements BlockEntity
     }
 
     @Override
-    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient) {
             if (state.get(HALF) == DoubleBlockHalf.UPPER) {
                 if (world.getBlockState(pos.down()).getBlock() instanceof UpgradedJukeboxBlock && world.getBlockState(pos.down()).get(HALF) == DoubleBlockHalf.LOWER) {
@@ -132,13 +126,13 @@ public class UpgradedJukeboxBlock extends BlockWithEntity implements BlockEntity
                 }
             }
         }
-        return super.onBreak(world, pos, state, player);
+        super.onBreak(world, pos, state, player);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, ModBlockEntities.UPGRADED_JUKEBOX_BLOCK_ENTITY,
+        return checkType(type, ModBlockEntities.UPGRADED_JUKEBOX_BLOCK_ENTITY,
                 (world1, pos, state1, blockEntity) -> blockEntity.tick(world1, pos, state1));
     }
 }

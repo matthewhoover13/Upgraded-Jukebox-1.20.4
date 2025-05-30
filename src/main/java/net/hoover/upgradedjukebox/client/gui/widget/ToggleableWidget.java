@@ -94,7 +94,7 @@ public class ToggleableWidget extends PressableWidget {
     }
 
     @Override
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
         RenderSystem.enableDepthTest();
         TextRenderer textRenderer = minecraftClient.textRenderer;
@@ -104,7 +104,7 @@ public class ToggleableWidget extends PressableWidget {
         int i = getSize(textRenderer);
         int j = this.getX() + i + 4;
         int k = this.getY() + (this.height >> 1) - (textRenderer.fontHeight >> 1);
-        context.drawGuiTexture(identifier, this.getX(), this.getY(), i, i);
+        context.drawTexture(identifier, this.getX(), this.getY(), 0, 0, 0, i, i, i, i);
         context.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
 

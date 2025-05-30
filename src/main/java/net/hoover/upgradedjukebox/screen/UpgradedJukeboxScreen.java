@@ -15,6 +15,7 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.PressableWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -106,8 +107,8 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
     @Environment(value=EnvType.CLIENT)
     class SkipButtonWidget
     extends PressableWidget {
-        private static final Identifier SKIP_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/skip_button");
-        private static final Identifier SKIP_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/skip_button_pressed");
+        private static final Identifier SKIP_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/skip_button.png");
+        private static final Identifier SKIP_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/skip_button_pressed.png");
 
         private boolean clicked;
 
@@ -121,8 +122,8 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
         }
 
         @Override
-        public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-            context.drawGuiTexture(clicked ? SKIP_BUTTON_PRESSED_TEXTURE : SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 17, 17);
+        public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
+            context.drawTexture(clicked ? SKIP_BUTTON_PRESSED_TEXTURE : SKIP_BUTTON_TEXTURE, this.getX(), this.getY(), 0, 0, 0, 17, 17, 17, 17);
         }
 
         @Override
@@ -153,12 +154,14 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
     @Environment(value=EnvType.CLIENT)
     class ShuffleButtonWidget
     extends ToggleableWidget {
-        private static final Identifier SHUFFLE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/shuffle_button");
-        private static final Identifier SHUFFLE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/shuffle_button_pressed");
+        private static final Identifier SHUFFLE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/shuffle_button.png");
+        private static final Identifier SHUFFLE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/shuffle_button_pressed.png");
 
         ShuffleButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toShuffle(), (checkbox, checked) -> {
-                ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
+                PacketByteBuf packet = PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos());
+                packet.writeBoolean(checked);
+                ClientPlayNetworking.send(ModMessages.CHECK_SHUFFLE_BOX_ID, packet);
             }, SHUFFLE_BUTTON_PRESSED_TEXTURE, SHUFFLE_BUTTON_TEXTURE);
             this.init();
         }
@@ -171,14 +174,16 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
     @Environment(value=EnvType.CLIENT)
     class PauseButtonWidget
     extends ToggleableWidget {
-        private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/play_button");
-        private static final Identifier PLAY_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/play_button_pressed");
-        private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/pause_button");
-        private static final Identifier PAUSE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/pause_button_pressed");
+        private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button.png");
+        private static final Identifier PLAY_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button_pressed.png");
+        private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button.png");
+        private static final Identifier PAUSE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button_pressed.png");
 
         PauseButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
-                ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
+                PacketByteBuf packet = PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos());
+                packet.writeBoolean(checked);
+                ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, packet);
             }, PLAY_BUTTON_PRESSED_TEXTURE, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_PRESSED_TEXTURE, PAUSE_BUTTON_TEXTURE);
             this.init();
         }
@@ -191,12 +196,14 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
     @Environment(value=EnvType.CLIENT)
     class LoopButtonWidget
     extends ToggleableWidget {
-        private static final Identifier LOOP_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/loop_button");
-        private static final Identifier LOOP_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "container/upgraded_jukebox/loop_button_pressed");
+        private static final Identifier LOOP_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/loop_button.png");
+        private static final Identifier LOOP_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/loop_button_pressed.png");
 
         LoopButtonWidget(int x, int y) {
             super(x, y, textRenderer, handler.toLoop(), (checkbox, checked) -> {
-                ClientPlayNetworking.send(ModMessages.CHECK_LOOP_BOX_ID, PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos()).writeBoolean(checked));
+                PacketByteBuf packet = PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos());
+                packet.writeBoolean(checked);
+                ClientPlayNetworking.send(ModMessages.CHECK_LOOP_BOX_ID, packet);
             }, LOOP_BUTTON_PRESSED_TEXTURE, LOOP_BUTTON_TEXTURE);
             this.init();
         }
