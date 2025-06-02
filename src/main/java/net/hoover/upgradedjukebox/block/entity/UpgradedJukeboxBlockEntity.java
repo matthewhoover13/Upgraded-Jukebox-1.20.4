@@ -16,6 +16,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.MusicDiscItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
@@ -26,6 +27,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
@@ -46,6 +48,7 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
     private int songProgress = 0;
     private int songLength = 0;
     private int skipCooldown = 0;
+    private int ticksThisSecond = 0;
 
     public UpgradedJukeboxBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.UPGRADED_JUKEBOX_BLOCK_ENTITY, pos, state);
@@ -100,6 +103,9 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         super.writeNbt(nbt);
         Inventories.writeNbt(nbt, inventory);
         nbt.putInt("upgraded_jukebox.progress", songProgress);
+        nbt.putBoolean("upgraded_jukebox.paused", paused);
+        nbt.putBoolean("upgraded_jukebox.to_shuffle", toShuffle);
+        nbt.putBoolean("upgraded_jukebox.to_loop", toLoop);
     }
 
     @Override
@@ -107,6 +113,9 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         super.readNbt(nbt);
         Inventories.readNbt(nbt, inventory);
         songProgress = nbt.getInt("upgraded_jukebox.progress");
+        paused = nbt.getBoolean("upgraded_jukebox.paused");
+        toShuffle = nbt.getBoolean("upgraded_jukebox.to_shuffle");
+        toLoop = nbt.getBoolean("upgraded_jukebox.to_loop");
     }
 
     @Nullable
@@ -125,13 +134,18 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
                 if (!isPlaying && !paused) {
                     startPlaying();
                 }
-                if (skipCooldown <= 1) {
+                if (skipCooldown <= 4) {
                     ++skipCooldown;
                 }
                 if (!paused) {
-                    this.increaseSongProgress();
+                    ++songProgress;
+                    ++ticksThisSecond;
+                    if (this.ticksThisSecond >= 20) {
+                        this.ticksThisSecond = 0;
+                        world.emitGameEvent(GameEvent.JUKEBOX_PLAY, pos, GameEvent.Emitter.of(state));
+                        this.spawnNoteParticle(world, pos);
+                    }
                 }
-                markDirty(world, pos, state);
                 if (hasSongFinished()) {
                     if (!this.toLoop) {
                         this.finishSong();
@@ -154,7 +168,7 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
     }
 
     public void skipCurrentSong() {
-        if (skipCooldown >= 1) {
+        if (skipCooldown >= 4) {
             this.finishSong();
             this.resetSong();
         }
@@ -192,6 +206,9 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         this.songProgress = 0;
         this.skipCooldown = 0;
         stopPlaying();
+        if (this.isPlayable() && !paused) {
+            startPlaying();
+        }
     }
 
     private void finishSong() {
@@ -278,11 +295,15 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         return songProgress >= songLength;
     }
 
-    private void increaseSongProgress() {
-        ++songProgress;
+    private void spawnNoteParticle(World world, BlockPos pos) {
+        if (world instanceof ServerWorld serverWorld) {
+            Vec3d vec3d = Vec3d.ofBottomCenter(pos).add(0.0, 2.2, 0.0);
+            float f = (float)world.getRandom().nextInt(4) / 24.0f;
+            serverWorld.spawnParticles(ParticleTypes.NOTE, vec3d.getX(), vec3d.getY(), vec3d.getZ(), 0, (double)f, 0.0, 0.0, 1.0);
+        }
     }
 
-    private boolean isPlayable() {
+    public boolean isPlayable() {
         ItemStack result = new ItemStack(getStack(INPUT_SLOT).getItem(), getStack(INPUT_SLOT).getCount());
         boolean hasInput = getStack(INPUT_SLOT).isIn(ItemTags.MUSIC_DISCS);
 
@@ -301,10 +322,14 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         return this.getStack(getOutputSlot()).isEmpty() || this.getStack(getOutputSlot()).getCount() < this.getStack(getOutputSlot()).getMaxCount();
     }
 
+    private void updateNeighbors() {
+        this.world.updateNeighborsAlways(this.getPos(), this.getCachedState().getBlock());
+    }
+
     public void startPlaying() {
         this.isPlaying = true;
         this.songLength = getSongLength() + 20;
-        this.world.updateNeighborsAlways(this.getPos(), this.getCachedState().getBlock());
+        updateNeighbors();
         this.world.syncWorldEvent(null, WorldEvents.JUKEBOX_STARTS_PLAYING, this.getPos(), Item.getRawId(this.getStack(INPUT_SLOT).getItem()));
         this.markDirty();
     }
@@ -312,7 +337,7 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
     private void stopPlaying() {
         this.isPlaying = false;
         this.world.emitGameEvent(GameEvent.JUKEBOX_STOP_PLAY, this.getPos(), GameEvent.Emitter.of(this.getCachedState()));
-        this.world.updateNeighborsAlways(this.getPos(), this.getCachedState().getBlock());
+        updateNeighbors();
         this.world.syncWorldEvent(WorldEvents.JUKEBOX_STOPS_PLAYING, this.getPos(), 0);
         this.markDirty();
     }
@@ -323,5 +348,16 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         }
         MusicDiscItem item = (MusicDiscItem)getStack(INPUT_SLOT).getItem();
         return item.getSongLengthInTicks();
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public int getComparatorOutput() {
+        if (getStack(INPUT_SLOT).getItem() instanceof MusicDiscItem musicDiscItem) {
+            return musicDiscItem.getComparatorOutput();
+        }
+        return 0;
     }
 }

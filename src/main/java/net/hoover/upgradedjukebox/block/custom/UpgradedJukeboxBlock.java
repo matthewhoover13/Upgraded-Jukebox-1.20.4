@@ -20,6 +20,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.WorldView;
@@ -85,6 +86,40 @@ public class UpgradedJukeboxBlock extends BlockWithEntity implements BlockEntity
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new UpgradedJukeboxBlockEntity(pos, state);
+    }
+
+    @Override
+    public boolean emitsRedstonePower(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+        BlockEntity blockEntity = world.getBlockEntity(state.get(HALF) == DoubleBlockHalf.LOWER ? pos : pos.down());
+        if (blockEntity instanceof UpgradedJukeboxBlockEntity upgradedJukeboxBlockEntity) {
+            if (state.get(HALF) == DoubleBlockHalf.LOWER) {
+                return upgradedJukeboxBlockEntity.isPlayable() ? 15 : 0;
+            }
+            return upgradedJukeboxBlockEntity.isPaused() ? 0 : upgradedJukeboxBlockEntity.isPlayable() ? 15 : 0;
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean hasComparatorOutput(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+        BlockEntity blockEntity = world.getBlockEntity(state.get(HALF) == DoubleBlockHalf.LOWER ? pos : pos.down());
+        if (blockEntity instanceof UpgradedJukeboxBlockEntity upgradedJukeboxBlockEntity) {
+            if (state.get(HALF) == DoubleBlockHalf.LOWER) {
+                return upgradedJukeboxBlockEntity.isPlayable() ? upgradedJukeboxBlockEntity.getComparatorOutput() : 0;
+            }
+            return upgradedJukeboxBlockEntity.isPaused() ? 0 : upgradedJukeboxBlockEntity.isPlayable() ? upgradedJukeboxBlockEntity.getComparatorOutput() : 0;
+        }
+        return 0;
     }
 
     @Override
