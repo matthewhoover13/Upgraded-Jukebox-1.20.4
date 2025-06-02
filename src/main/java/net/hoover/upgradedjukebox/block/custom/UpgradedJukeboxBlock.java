@@ -114,6 +114,7 @@ public class UpgradedJukeboxBlock extends BlockWithEntity implements BlockEntity
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (!world.isClient) {
             if (state.get(HALF) == DoubleBlockHalf.UPPER) {
+                world.syncWorldEvent(WorldEvents.JUKEBOX_STOPS_PLAYING, pos.down(), 0);
                 if (world.getBlockState(pos.down()).getBlock() instanceof UpgradedJukeboxBlock && world.getBlockState(pos.down()).get(HALF) == DoubleBlockHalf.LOWER) {
                     world.setBlockState(pos.down(), Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.SKIP_DROPS);
                     world.syncWorldEvent(player, WorldEvents.BLOCK_BROKEN, pos.down(), Block.getRawIdFromState(world.getBlockState(pos.down())));

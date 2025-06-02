@@ -24,9 +24,9 @@ import net.minecraft.util.Identifier;
 public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHandler> {
     private static final Identifier TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/jukebox_gui.png");
 
+    private PauseButtonWidget pauseButton;
     private SkipButtonWidget skipButtonWidget;
     private ShuffleButtonWidget shuffleButton;
-    private PauseButtonWidget pauseButton;
     private LoopButtonWidget loopButton;
 
     public UpgradedJukeboxScreen(UpgradedJukeboxScreenHandler handler, PlayerInventory inventory, Text title) {
@@ -42,13 +42,13 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
         this.playerInventoryTitleY = this.backgroundHeight - 89;
         int x = getStartingX() + 25;
         int y = getStartingY() + 71;
-        skipButtonWidget = new SkipButtonWidget(x + 36, y);
-        this.addDrawableChild(skipButtonWidget);
         if (this.textRenderer != null) {
-            shuffleButton = new ShuffleButtonWidget(x + 73, y);
-            this.addDrawableChild(shuffleButton);
             pauseButton = new PauseButtonWidget(x, y);
             this.addDrawableChild(pauseButton);
+            skipButtonWidget = new SkipButtonWidget(x + 36, y);
+            this.addDrawableChild(skipButtonWidget);
+            shuffleButton = new ShuffleButtonWidget(x + 73, y);
+            this.addDrawableChild(shuffleButton);
             loopButton = new LoopButtonWidget(x + 109, y);
             this.addDrawableChild(loopButton);
         }
@@ -73,17 +73,18 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        renderBackground(context);
         updateWidgets();
         super.render(context, mouseX, mouseY, delta);
         drawMouseoverTooltip(context, mouseX, mouseY);
     }
 
     private void updateWidgets() {
-        shuffleButton.setChecked(handler.toShuffle());
         if (pauseButton.isChecked() != handler.toPause()) {
             pauseButton.setChecked(handler.toPause());
             pauseButton.setTooltip(Tooltip.of(Text.translatable(pauseButton.isChecked() ? "block.upgradedjukebox.upgraded_jukebox.play_button" : "block.upgradedjukebox.upgraded_jukebox.pause_button")));
         }
+        shuffleButton.setChecked(handler.toShuffle());
         loopButton.setChecked(handler.toLoop());
     }
 
@@ -97,11 +98,33 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        pauseButton.mouseReleased(mouseX, mouseY, button);
         skipButtonWidget.mouseReleased(mouseX, mouseY, button);
         shuffleButton.mouseReleased(mouseX, mouseY, button);
-        pauseButton.mouseReleased(mouseX, mouseY, button);
         loopButton.mouseReleased(mouseX, mouseY, button);
         return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Environment(value=EnvType.CLIENT)
+    class PauseButtonWidget
+    extends ToggleableWidget {
+        private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button.png");
+        private static final Identifier PLAY_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button_pressed.png");
+        private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button.png");
+        private static final Identifier PAUSE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button_pressed.png");
+
+        PauseButtonWidget(int x, int y) {
+            super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
+                PacketByteBuf packet = PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos());
+                packet.writeBoolean(checked);
+                ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, packet);
+            }, PLAY_BUTTON_PRESSED_TEXTURE, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_PRESSED_TEXTURE, PAUSE_BUTTON_TEXTURE);
+            this.init();
+        }
+
+        private void init() {
+            this.setTooltip(Tooltip.of(Text.translatable("block.upgradedjukebox.upgraded_jukebox.pause_button")));
+        }
     }
 
     @Environment(value=EnvType.CLIENT)
@@ -168,28 +191,6 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
 
         private void init() {
             this.setTooltip(Tooltip.of(Text.translatable("block.upgradedjukebox.upgraded_jukebox.shuffle_button")));
-        }
-    }
-
-    @Environment(value=EnvType.CLIENT)
-    class PauseButtonWidget
-    extends ToggleableWidget {
-        private static final Identifier PLAY_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button.png");
-        private static final Identifier PLAY_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/play_button_pressed.png");
-        private static final Identifier PAUSE_BUTTON_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button.png");
-        private static final Identifier PAUSE_BUTTON_PRESSED_TEXTURE = new Identifier(UpgradedJukebox.MOD_ID, "textures/gui/sprites/container/upgraded_jukebox/pause_button_pressed.png");
-
-        PauseButtonWidget(int x, int y) {
-            super(x, y, textRenderer, handler.toPause(), (checkbox, checked) -> {
-                PacketByteBuf packet = PacketByteBufs.create().writeBlockPos(handler.blockEntity.getPos());
-                packet.writeBoolean(checked);
-                ClientPlayNetworking.send(ModMessages.CHECK_PAUSE_BOX_ID, packet);
-            }, PLAY_BUTTON_PRESSED_TEXTURE, PLAY_BUTTON_TEXTURE, PAUSE_BUTTON_PRESSED_TEXTURE, PAUSE_BUTTON_TEXTURE);
-            this.init();
-        }
-
-        private void init() {
-            this.setTooltip(Tooltip.of(Text.translatable("block.upgradedjukebox.upgraded_jukebox.pause_button")));
         }
     }
 
