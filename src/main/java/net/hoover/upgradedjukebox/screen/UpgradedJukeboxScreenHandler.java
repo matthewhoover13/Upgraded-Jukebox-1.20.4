@@ -100,7 +100,7 @@ public class UpgradedJukeboxScreenHandler extends ScreenHandler {
     private void addInputSlots(Inventory inventory) {
         for (int j = 0; j < 3; ++j) {
             for (int k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 17 + j * 17));
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 18 + j * 18));
             }
         }
     }
@@ -108,7 +108,7 @@ public class UpgradedJukeboxScreenHandler extends ScreenHandler {
     private void addOutputSlots(Inventory inventory) {
         for (int j = 3; j < 6; ++j) {
             for (int k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 50 + j * 17));
+                this.addSlot(new Slot(inventory, k + j * 9, 8 + k * 18, 52 + j * 18));
             }
         }
     }
@@ -116,14 +116,14 @@ public class UpgradedJukeboxScreenHandler extends ScreenHandler {
     private void addPlayerInventory(PlayerInventory playerInventory) {
         for (int j = 0; j < 3; ++j) {
             for (int k = 0; k < 9; ++k) {
-                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 166 + j * 17));
+                this.addSlot(new Slot(playerInventory, k + j * 9 + 9, 8 + k * 18, 174 + j * 18));
             }
         }
     }
 
     private void addPlayerHotbar(PlayerInventory playerInventory) {
         for (int j = 0; j < 9; ++j) {
-            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 221));
+            this.addSlot(new Slot(playerInventory, j, 8 + j * 18, 232));
         }
     }
 }

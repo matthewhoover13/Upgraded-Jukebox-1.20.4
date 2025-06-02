@@ -38,10 +38,10 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
     protected void init() {
         super.init();
         this.titleY = 6;
-        this.backgroundHeight = 243;
-        this.playerInventoryTitleY = this.backgroundHeight - 89;
+        this.backgroundHeight = 256;
+        this.playerInventoryTitleY = this.backgroundHeight - 94;
         int x = getStartingX() + 25;
-        int y = getStartingY() + 71;
+        int y = getStartingY() + 76;
         if (this.textRenderer != null) {
             pauseButton = new PauseButtonWidget(x, y);
             this.addDrawableChild(pauseButton);
@@ -61,13 +61,13 @@ public class UpgradedJukeboxScreen extends HandledScreen<UpgradedJukeboxScreenHa
         RenderSystem.setShaderTexture(0, TEXTURE);
         int x = getStartingX();
         int y = getStartingY();
-        context.drawTexture(TEXTURE, x, y, 0, 0, backgroundWidth, backgroundHeight);
+        context.drawTexture(TEXTURE, x, y, 0, 0, 0, backgroundWidth, backgroundHeight, 256, 269);
         renderSongProgress(context, x, y);
     }
 
     private void renderSongProgress(DrawContext context, int x, int y) {
         if (handler.isPlaying()) {
-            context.drawTexture(TEXTURE, x + 8, y + 92, 8, 247, handler.getScaledProgress(), 3);
+            context.drawTexture(TEXTURE, x + 8, y + 97, 8, 247, handler.getScaledProgress(), 3);
         }
     }
 
