@@ -134,7 +134,7 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
                 if (!isPlaying && !paused) {
                     startPlaying();
                 }
-                if (skipCooldown <= 4) {
+                if (skipCooldown <= 1) {
                     ++skipCooldown;
                 }
                 if (!paused) {
@@ -163,12 +163,13 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         }
         shiftItemsToEmptySlots();
         if (!paused && isPlaylistFinished()) {
-            autoPlayDiscs(toShuffle);
+            moveDiscsToInput(toShuffle);
         }
+        updateNeighbors();
     }
 
     public void skipCurrentSong() {
-        if (skipCooldown >= 4) {
+        if (skipCooldown >= 1) {
             this.finishSong();
             this.resetSong();
         }
@@ -206,16 +207,13 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         this.songProgress = 0;
         this.skipCooldown = 0;
         stopPlaying();
-        if (this.isPlayable() && !paused) {
-            startPlaying();
-        }
     }
 
     private void finishSong() {
         this.setStack(getOutputSlot(), this.removeStack(INPUT_SLOT));
         shiftItemsToEmptySlots();
         if (!paused && isPlaylistFinished()) {
-            autoPlayDiscs(toShuffle);
+            moveDiscsToInput(toShuffle);
         }
     }
 
@@ -258,7 +256,7 @@ public class UpgradedJukeboxBlockEntity extends BlockEntity implements ExtendedS
         return getStack(INPUT_SLOT).isEmpty() && !getStack(INPUT_SLOT + (inventory.size() / 2)).isEmpty();
     }
 
-    private void autoPlayDiscs(boolean shuffle) {
+    private void moveDiscsToInput(boolean shuffle) {
         if (shuffle) {
             while (hasOutput()) {
                 int i = inventory.size() / 2;
